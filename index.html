@@ -7,7 +7,8 @@
   
   <!-- A-Frame for AR rendering -->
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.5.0/math.min.js"></script>
+  <!-- AR.js for markerless AR (useful for mobile AR with camera feed) -->
+  <script src="https://aframe.io/releases/1.2.0/aframe-ar.js"></script>
   <!-- OpenCV.js -->
   <script async src="https://docs.opencv.org/4.x/opencv.js" onload="onOpenCvReady()" onerror="onOpenCvError()"></script>
 
@@ -20,51 +21,42 @@
 </head>
 <body>
 
-<a-scene embedded renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+<!-- A-Frame scene with AR.js enabled -->
+<a-scene embedded vr-mode-ui="enabled: false" renderer="antialias: true;" arjs="sourceType: webcam; debugUIEnabled: false;">
   <a-assets>
-      <a-asset-item id="astro" src="ASTRONAVE.glb"></a-asset-item>
+    <!-- Load the 3D model of the spaceship -->
+    <a-asset-item id="astro" src="ASTRONAVE.glb"></a-asset-item>
   </a-assets>
 
-  <!-- Astronave 3D che verrà posizionata nello spazio AR -->
-  <a-entity id="astronave" position="0 0 -5" gltf-model="#astro" scale=".7 .7 .7"></a-entity>
+  <!-- Astronave 3D da visualizzare nell'AR -->
+  <a-entity id="astronave" gltf-model="#astro" scale="0.7 0.7 0.7" position="0 0 0" rotation="0 0 0"></a-entity>
 
-  <!-- Camera AR controllata tramite orientamento del dispositivo -->
-  <a-camera id="ar-camera" position="0 1.6 0" look-controls="enabled: false" wasd-controls="enabled: false"></a-camera>
-
-  <!-- Simulazione di una superficie piana per un riferimento visivo -->
-  <a-plane id="plane" position="0 0 0" rotation="-90 0 0" width="10" height="10" color="#CCC" opacity="0.5"></a-plane>
+  <!-- Camera per il rendering AR -->
+  <a-camera position="0 0 0" look-controls="enabled: true"></a-camera>
 </a-scene>
 
-<!-- Script per il controllo della camera in base all'orientamento del dispositivo -->
+<!-- Script per l'orientamento del dispositivo -->
 <script>
   let alpha = 0, beta = 0, gamma = 0;
-  let cameraEntity = document.querySelector('#ar-camera');
+  let cameraEntity = document.querySelector('a-camera');
   let astronaveEntity = document.querySelector('#astronave');
-  let planeEntity = document.querySelector('#plane');
 
-  // Funzione per gestire l'orientamento del dispositivo
+  // Gestire l'orientamento del dispositivo
   function handleOrientation(event) {
     alpha = event.alpha ? THREE.MathUtils.degToRad(event.alpha) : 0; // Yaw
-    beta = event.beta ? THREE.MathUtils.degToRad(event.beta) : 0; // Pitch
+    beta = event.beta ? THREE.MathUtils.degToRad(event.beta) : 0;   // Pitch
     gamma = event.gamma ? THREE.MathUtils.degToRad(event.gamma) : 0; // Roll
     
-    // Ruota la camera in base all'orientamento del dispositivo
+    // Ruota la camera secondo l'orientamento del dispositivo
     cameraEntity.object3D.rotation.set(beta, alpha, gamma);
-    
-    // Aggiusta l'astronave basandoti sull'orientamento della camera
-    // L'astronave segue la rotazione della camera in modo inverso
+
+    // Posizionare l'astronave a una certa distanza
     astronaveEntity.object3D.position.set(0, 0, -5);
     astronaveEntity.object3D.lookAt(cameraEntity.object3D.position);
   }
 
-  // Ascolta i cambiamenti nell'orientamento del dispositivo
+  // Aggiungi listener per i cambiamenti di orientamento del dispositivo
   window.addEventListener('deviceorientation', handleOrientation, true);
-
-  // Resetta la posizione della camera e dell'astronave alla partenza
-  window.onload = () => {
-    cameraEntity.setAttribute('position', '0 1.6 0');
-    astronaveEntity.setAttribute('position', '0 0 -5');
-  };
 </script>
 
 <script>
