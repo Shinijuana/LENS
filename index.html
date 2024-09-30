@@ -6,7 +6,66 @@
   <title>Esperienza AR - Oggetto Unico</title>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
-    /* Stili CSS qui */
+    /* Stili per mantenere il modello a schermo intero */
+    :not(:defined) > * {
+      display: none;
+    }
+
+    model-viewer {
+      background-color: #ffffff;
+      width: 100vw; /* Occupa l'intera larghezza del viewport */
+      height: 100vh; /* Occupa l'intera altezza del viewport */
+      display: block; /* Assicura che il modello sia un blocco */
+    }
+
+    #ar-button {
+      background-image: url(assets/ic_view_in_ar_new_googblue_48dp.png);
+      background-repeat: no-repeat;
+      background-size: 20px 20px;
+      background-position: 12px 50%;
+      background-color: #fff;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      bottom: 132px;
+      padding: 0px 16px 0px 40px;
+      font-family: Roboto Regular, Helvetica Neue, sans-serif;
+      font-size: 14px;
+      color:#4285f4;
+      height: 36px;
+      line-height: 36px;
+      border-radius: 18px;
+      border: 1px solid #DADCE0;
+    }
+
+    #ar-button:active {
+      background-color: #E8EAED;
+    }
+
+    #ar-button:focus {
+      outline: none;
+    }
+
+    #ar-button:focus-visible {
+      outline: 1px solid #4285f4;
+    }
+
+    #ar-prompt, #ar-failure {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 175px;
+      display: none;
+    }
+
+    model-viewer[ar-status="session-started"] > #ar-prompt {
+      display: block;
+    }
+
+    model-viewer[ar-tracking="not-tracking"] > #ar-failure {
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -48,10 +107,8 @@
     // Quando l'animazione termina, ferma l'animazione e rimani nell'ultimo fotogramma
     modelViewer.addEventListener('animation-finished', () => {
       modelViewer.pause(); // Ferma l'animazione
-      // Rimani sull'ultimo fotogramma dell'animazione
       modelViewer.currentTime = modelViewer.duration; // Imposta al tempo finale
     });
-
   </script>
 
 </body>
