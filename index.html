@@ -60,7 +60,6 @@
     tone-mapping="neutral" 
     shadow-intensity="1" 
     ar 
-    autoplay 
     camera-controls 
     touch-action="pan-y" 
     alt="Un modello 3D di un oggetto">
@@ -73,20 +72,28 @@
   <script>
     const modelViewer = document.getElementById('sens');
     let isAnimationPlaying = false;
-    const pauseAtFrame = 120; // frame al quale vuoi mettere in pausa
-    const fps = 24; // frame per secondo del tuo modello
-    const pauseTime = pauseAtFrame / fps; // tempo in secondi per il frame specificato
+    let isFirstClick = true; // Indica se è il primo clic
+    const pauseAtFrame = 120; // Frame al quale vuoi mettere in pausa
+    const fps = 24; // Frame per secondo del tuo modello
+    const pauseTime = pauseAtFrame / fps; // Tempo in secondi per il frame specificato
 
     modelViewer.addEventListener('click', () => {
-      if (!isAnimationPlaying) {
-        // Imposta il tempo corrente al frame specificato
-        modelViewer.currentTime = pauseTime; 
-        modelViewer.pause(); // Ferma l'animazione
-        isAnimationPlaying = true; // Indica che l'animazione è ora in pausa
+      if (isFirstClick) {
+        // Primo clic: inizia l'animazione e metti in pausa al frame 120
+        modelViewer.play(); // Avvia l'animazione
+        modelViewer.currentTime = pauseTime; // Imposta il tempo corrente al frame specificato
+        modelViewer.pause(); // Ferma l'animazione al frame specificato
+        isFirstClick = false; // Cambia stato per il prossimo clic
+        isAnimationPlaying = true; // Indica che l'animazione è in corso
+      } else if (isAnimationPlaying) {
+        // Secondo clic: riprendi l'animazione
+        modelViewer.play(); // Avvia l'animazione
+        isAnimationPlaying = false; // Cambia stato per il ciclo successivo
       } else {
-        // Riprendi l'animazione
-        modelViewer.play(); // Inizia a riprodurre l'animazione
-        isAnimationPlaying = false; // Indica che l'animazione è ora in riproduzione
+        // Se l'animazione è già terminata e si vuole ripetere
+        modelViewer.currentTime = 0; // Torna all'inizio
+        modelViewer.play(); // Avvia l'animazione
+        isAnimationPlaying = false; // Imposta su falso in modo da poter ripetere
       }
     });
 
@@ -95,6 +102,7 @@
       // Imposta il tempo corrente all'ultimo frame dell'animazione
       modelViewer.currentTime = modelViewer.duration; // Imposta al termine dell'animazione
       modelViewer.pause(); // Metti in pausa
+      isAnimationPlaying = false; // Indica che l'animazione è finita
     });
   </script>
 
