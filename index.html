@@ -6,7 +6,6 @@
   <title>Esperienza AR - Oggetto Unico</title>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
-    /* Questo mantiene i nodi figli nascosti mentre l'elemento si carica */
     :not(:defined) > * {
       display: none;
     }
@@ -32,7 +31,7 @@
       padding: 0px 16px 0px 40px;
       font-family: Roboto Regular, Helvetica Neue, sans-serif;
       font-size: 14px;
-      color:#4285f4;
+      color: #4285f4;
       height: 36px;
       line-height: 36px;
       border-radius: 18px;
@@ -50,49 +49,10 @@
     #ar-button:focus-visible {
       outline: 1px solid #4285f4;
     }
-
-    @keyframes circle {
-      from { transform: translateX(-50%) rotate(0deg) translateX(50px) rotate(0deg); }
-      to   { transform: translateX(-50%) rotate(360deg) translateX(50px) rotate(-360deg); }
-    }
-
-    @keyframes elongate {
-      from { transform: translateX(100px); }
-      to   { transform: translateX(-100px); }
-    }
-
-    model-viewer > #ar-prompt {
-      position: absolute;
-      left: 50%;
-      bottom: 175px;
-      animation: elongate 2s infinite ease-in-out alternate;
-      display: none;
-    }
-
-    model-viewer[ar-status="session-started"] > #ar-prompt {
-      display: block;
-    }
-
-    model-viewer > #ar-prompt > img {
-      animation: circle 4s linear infinite;
-    }
-
-    model-viewer > #ar-failure {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: 175px;
-      display: none;
-    }
-
-    model-viewer[ar-tracking="not-tracking"] > #ar-failure {
-      display: block;
-    }
   </style>
 </head>
 <body>
 
-  <!-- Esperienza AR con un oggetto -->
   <model-viewer 
     id="sens"
     src="full.glb" 
@@ -130,13 +90,14 @@
 
       // Imposta il nome dell'animazione e inizia a riprodurla
       modelViewer.setAttribute('animation-name', 'Animation'); // Imposta il nome dell'animazione
-      modelViewer.play(); // Inizia l'animazione
+      modelViewer.play({ repetitions: 1 }); // Inizia l'animazione una volta
     });
 
-    // Quando l'animazione termina, ferma l'animazione e impostala sull'ultimo fotogramma
+    // Quando l'animazione termina, ferma l'animazione
     modelViewer.addEventListener('animation-finished', () => {
       modelViewer.pause(); // Ferma l'animazione
-      modelViewer.currentTime = modelViewer.duration; // Imposta il tempo corrente all'inizio
+      // Imposta il tempo corrente all'ultimo fotogramma
+      modelViewer.currentTime = modelViewer.duration; // Se vuoi che resti sull'ultimo fotogramma
     });
   </script>
 
