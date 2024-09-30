@@ -123,7 +123,12 @@
 
     // Aggiungi un listener per il click sul modello
     modelViewer.addEventListener('click', () => {
-      // Avvia l'animazione
+      // Controlla se l'animazione è già in esecuzione
+      if (!modelViewer.paused) {
+        return; // Non fare nulla se l'animazione è già in esecuzione
+      }
+
+      // Imposta il nome dell'animazione e inizia a riprodurla
       modelViewer.setAttribute('animation-name', 'Animation'); // Imposta il nome dell'animazione
       modelViewer.play(); // Inizia l'animazione
     });
@@ -131,7 +136,7 @@
     // Quando l'animazione termina, ferma l'animazione e impostala sull'ultimo fotogramma
     modelViewer.addEventListener('animation-finished', () => {
       modelViewer.pause(); // Ferma l'animazione
-      modelViewer.currentTime = modelViewer.duration; // Imposta il tempo corrente all'ultimo fotogramma
+      modelViewer.currentTime = modelViewer.duration; // Imposta il tempo corrente all'inizio
     });
   </script>
 
