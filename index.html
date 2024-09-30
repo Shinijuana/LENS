@@ -120,12 +120,15 @@
 
   <script>
     const modelViewer = document.getElementById('sens');
+    let animationStarted = false; // Variabile per controllare se l'animazione è già stata avviata
 
     // Aggiungi un listener per il click sul modello
     modelViewer.addEventListener('click', () => {
-      // Avvia l'animazione
-      modelViewer.setAttribute('animation-name', 'Animation'); // Imposta il nome della tua animazione
-      modelViewer.play(); // Inizia l'animazione
+      if (!animationStarted) {
+        modelViewer.setAttribute('animation-name', 'Animation'); // Imposta il nome della tua animazione
+        modelViewer.play(); // Inizia l'animazione
+        animationStarted = true; // Imposta a true per indicare che l'animazione è iniziata
+      }
     });
 
     // Quando l'animazione termina, ferma l'animazione
