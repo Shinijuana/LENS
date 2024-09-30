@@ -120,21 +120,18 @@
 
   <script>
     const modelViewer = document.getElementById('sens');
-    let animationStarted = false; // Variabile per controllare se l'animazione è già stata avviata
 
     // Aggiungi un listener per il click sul modello
     modelViewer.addEventListener('click', () => {
-      if (!animationStarted) {
-        modelViewer.setAttribute('animation-name', 'Animation'); // Imposta il nome della tua animazione
-        modelViewer.play(); // Inizia l'animazione
-        animationStarted = true; // Imposta a true per indicare che l'animazione è iniziata
-      }
+      // Avvia l'animazione
+      modelViewer.setAttribute('animation-name', 'Animation'); // Imposta il nome dell'animazione
+      modelViewer.play(); // Inizia l'animazione
     });
 
-    // Quando l'animazione termina, ferma l'animazione
+    // Quando l'animazione termina, ferma l'animazione e impostala sull'ultimo fotogramma
     modelViewer.addEventListener('animation-finished', () => {
       modelViewer.pause(); // Ferma l'animazione
-      modelViewer.removeAttribute('animation-name'); // Rimuovi l'attributo per evitare di ripartire
+      modelViewer.currentTime = modelViewer.duration; // Imposta il tempo corrente all'ultimo fotogramma
     });
   </script>
 
