@@ -6,16 +6,15 @@
   <title>Esperienza AR - Oggetto Unico</title>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
-    /* Stili per mantenere il modello a schermo intero */
     :not(:defined) > * {
       display: none;
     }
 
     model-viewer {
       background-color: #ffffff;
-      width: 100vw; /* Occupa l'intera larghezza del viewport */
-      height: 100vh; /* Occupa l'intera altezza del viewport */
-      display: block; /* Assicura che il modello sia un blocco */
+      overflow-x: hidden;
+      width: 100%;
+      height: 100vh;
     }
 
     #ar-button {
@@ -50,22 +49,6 @@
     #ar-button:focus-visible {
       outline: 1px solid #4285f4;
     }
-
-    #ar-prompt, #ar-failure {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: 175px;
-      display: none;
-    }
-
-    model-viewer[ar-status="session-started"] > #ar-prompt {
-      display: block;
-    }
-
-    model-viewer[ar-tracking="not-tracking"] > #ar-failure {
-      display: block;
-    }
   </style>
 </head>
 <body>
@@ -77,6 +60,7 @@
     tone-mapping="neutral" 
     shadow-intensity="1" 
     ar 
+    autoplay 
     camera-controls 
     touch-action="pan-y" 
     alt="Un modello 3D di un oggetto">
@@ -84,49 +68,34 @@
     <button slot="ar-button" id="ar-button">
       View in your space
     </button>
-
-    <div id="ar-prompt">
-      <img src="assets/hand.png">
-    </div>
-
-    <button id="ar-failure">
-      AR is not tracking!
-    </button>
-
   </model-viewer>
 
   <script>
     const modelViewer = document.getElementById('sens');
-    let clickCount = 0; // Variabile per tenere traccia del numero di clic
-    let currentAnimation = ''; // Variabile per tenere traccia dell'animazione corrente
+    let isAnimationPlaying = false;
+    const pauseAtFrame = 120; // frame al quale vuoi mettere in pausa
+    const fps = 24; // frame per secondo del tuo modello
+    const pauseTime = pauseAtFrame / fps; // tempo in secondi per il frame specificato
 
     modelViewer.addEventListener('click', () => {
-      clickCount++;
-
-      if (clickCount === 1) {
-        // Primo clic: avvia l'animazione di apertura
-        currentAnimation = 'apertura';
-        modelViewer.timeScale = 1; // Riproduci in avanti
-        modelViewer.play({ repetitions: 1 });
-      } else if (clickCount === 2) {
-        // Secondo clic: avvia l'animazione di chiusura
-        currentAnimation = 'chiusura';
-        modelViewer.timeScale = -1; // Riproduci all'indietro
-        modelViewer.currentTime = modelViewer.duration; // Inizia dall'ultimo fotogramma
-        modelViewer.play({ repetitions: 1 });
-        clickCount = 0; // Resetta il conteggio dei clic
-      }
-    });
-
-    // Quando l'animazione termina
-    modelViewer.addEventListener('animation-finished', () => {
-      if (currentAnimation === 'chiusura') {
+      if (!isAnimationPlaying) {
+        // Imposta il tempo corrente al frame specificato
+        modelViewer.currentTime = pauseTime; 
         modelViewer.pause(); // Ferma l'animazione
-        modelViewer.timeScale = 1; // Ripristina il timeScale a 1
-        modelViewer.currentTime = 0; // Torna all'inizio per ripartire
+        isAnimationPlaying = true; // Indica che l'animazione è ora in pausa
+      } else {
+        // Riprendi l'animazione
+        modelViewer.play(); // Inizia a riprodurre l'animazione
+        isAnimationPlaying = false; // Indica che l'animazione è ora in riproduzione
       }
     });
 
+    // Gestisci l'evento quando l'animazione finisce
+    modelViewer.addEventListener('finished', () => {
+      // Imposta il tempo corrente all'ultimo frame dell'animazione
+      modelViewer.currentTime = modelViewer.duration; // Imposta al termine dell'animazione
+      modelViewer.pause(); // Metti in pausa
+    });
   </script>
 
 </body>
