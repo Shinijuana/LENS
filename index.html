@@ -42,9 +42,9 @@
         modelViewer.currentTime = 0;
         modelViewer.play();
         animationState = 'playingTo120';
-        
+
         const checkFrame = () => {
-          console.log(`Verifica frame (playingTo120): currentTime = ${modelViewer.currentTime}, pauseTime = ${pauseTime}`);
+          console.log(`Verifica frame (playingTo120): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime.toFixed(2)}`);
           
           if (animationState === 'playingTo120' && modelViewer.currentTime >= pauseTime) {
             modelViewer.pause(); // Pausa al frame 120
@@ -62,7 +62,7 @@
         animationState = 'playingToEnd';
 
         const checkEnd = () => {
-          console.log(`Verifica fine (playingToEnd): currentTime = ${modelViewer.currentTime}, duration = ${modelViewer.duration}`);
+          console.log(`Verifica fine (playingToEnd): currentTime = ${modelViewer.currentTime.toFixed(2)}, duration = ${modelViewer.duration.toFixed(2)}`);
 
           if (animationState === 'playingToEnd' && modelViewer.currentTime >= modelViewer.duration) {
             modelViewer.pause(); // Pausa alla fine dell'animazione
@@ -81,7 +81,7 @@
         animationState = 'playingTo120';
 
         const checkFrameAgain = () => {
-          console.log(`Verifica frame (playingTo120 di nuovo): currentTime = ${modelViewer.currentTime}, pauseTime = ${pauseTime}`);
+          console.log(`Verifica frame (playingTo120 di nuovo): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime.toFixed(2)}`);
           
           if (animationState === 'playingTo120' && modelViewer.currentTime >= pauseTime) {
             modelViewer.pause(); // Pausa di nuovo al frame 120
