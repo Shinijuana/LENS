@@ -35,15 +35,20 @@
     const pauseTime = pauseAtFrame / fps;
 
     modelViewer.addEventListener('click', () => {
+      console.log(`Click rilevato, stato corrente: ${animationState}`);
+
       if (animationState === 'initial') {
-        // Primo click: parte l'animazione e fermala al frame 120
+        console.log('Stato: initial. Avvio animazione fino al frame 120.');
         modelViewer.currentTime = 0;
         modelViewer.play();
         animationState = 'playingTo120';
         
         const checkFrame = () => {
+          console.log(`Verifica frame (playingTo120): currentTime = ${modelViewer.currentTime}, pauseTime = ${pauseTime}`);
+          
           if (animationState === 'playingTo120' && modelViewer.currentTime >= pauseTime) {
             modelViewer.pause(); // Pausa al frame 120
+            console.log('Animazione messa in pausa al frame 120.');
             animationState = 'pausedAt120';
           } else if (animationState === 'playingTo120') {
             requestAnimationFrame(checkFrame); // Continua a controllare fino a che non si raggiunge il frame 120
@@ -52,13 +57,16 @@
         
         requestAnimationFrame(checkFrame);
       } else if (animationState === 'pausedAt120') {
-        // Secondo click: riprendi l'animazione fino alla fine
+        console.log('Stato: pausedAt120. Riprendo animazione fino alla fine.');
         modelViewer.play();
         animationState = 'playingToEnd';
 
         const checkEnd = () => {
+          console.log(`Verifica fine (playingToEnd): currentTime = ${modelViewer.currentTime}, duration = ${modelViewer.duration}`);
+
           if (animationState === 'playingToEnd' && modelViewer.currentTime >= modelViewer.duration) {
             modelViewer.pause(); // Pausa alla fine dell'animazione
+            console.log('Animazione finita e messa in pausa alla fine.');
             animationState = 'closing';
           } else if (animationState === 'playingToEnd') {
             requestAnimationFrame(checkEnd); // Continua a controllare fino a che non termina l'animazione
@@ -67,14 +75,17 @@
 
         requestAnimationFrame(checkEnd);
       } else if (animationState === 'closing') {
-        // Terzo click: ricomincia l'animazione dall'inizio
+        console.log('Stato: closing. Ripeto animazione dall\'inizio.');
         modelViewer.currentTime = 0;
         modelViewer.play();
         animationState = 'playingTo120';
 
         const checkFrameAgain = () => {
+          console.log(`Verifica frame (playingTo120 di nuovo): currentTime = ${modelViewer.currentTime}, pauseTime = ${pauseTime}`);
+          
           if (animationState === 'playingTo120' && modelViewer.currentTime >= pauseTime) {
             modelViewer.pause(); // Pausa di nuovo al frame 120
+            console.log('Animazione messa in pausa al frame 120 (di nuovo).');
             animationState = 'pausedAt120';
           } else if (animationState === 'playingTo120') {
             requestAnimationFrame(checkFrameAgain); // Continua a controllare fino a che non si raggiunge il frame 120
