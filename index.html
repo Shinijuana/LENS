@@ -54,10 +54,11 @@
         // Secondo clic: Riprendi l'animazione dal punto in cui era stata fermata
         modelViewer.play();
 
+        // Una volta che l'animazione termina, la mettiamo in pausa e aggiornamo lo stato
         modelViewer.addEventListener('finished', () => {
           modelViewer.pause(); // Ferma l'animazione al termine
           animationState = 2; // Passa allo stato di chiusura completata
-        }, { once: true });
+        }, { once: true }); // Assicura che l'evento venga ascoltato solo una volta
 
       } else if (animationState === 2) {
         // Terzo clic: Riavvia l'animazione dall'inizio
@@ -75,10 +76,13 @@
       }
     });
 
-    // Gestisci l'evento quando l'animazione finisce
+    // Gestisci l'evento quando l'animazione finisce per evitare il loop
     modelViewer.addEventListener('finished', () => {
-      modelViewer.pause(); // Metti in pausa al termine
-      animationState = 2; // Imposta lo stato a chiusura completata
+      if (animationState === 1) {
+        // Se siamo nello stato di chiusura, non deve partire di nuovo
+        modelViewer.pause();
+        animationState = 2;
+      }
     });
   </script>
 
