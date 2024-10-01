@@ -59,7 +59,7 @@
         requestAnimationFrame(checkFrame);
       } else if (animationState === 'pausedAt120') {
         console.log('Stato: pausedAt120. Riprendo animazione fino alla fine.');
-        modelViewer.currentTime = modelViewer.duration; // Torna alla fine dell'animazione
+        modelViewer.currentTime = pauseTime; // Riprendi dal frame 120
         modelViewer.play(); // Avvia l'animazione
 
         const checkEnd = () => {
@@ -67,7 +67,7 @@
 
           // Controlla se siamo alla fine dell'animazione
           if (modelViewer.currentTime >= modelViewer.duration) {
-            modelViewer.currentTime = loopStartTime; // Imposta il tempo al ciclo di apertura
+            modelViewer.currentTime = loopStartTime; // Imposta il tempo all'inizio del ciclo di apertura
             modelViewer.pause(); // Metti in pausa all'inizio del ciclo di apertura
             console.log('Animazione finita e messa in pausa all\'inizio del ciclo di apertura.');
             animationState = 'closing'; // Imposta lo stato su closing
