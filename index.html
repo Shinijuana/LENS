@@ -29,17 +29,17 @@
 
   <script>
     const modelViewer = document.getElementById('sens');
-    let animationState = 'initial'; // Stati possibili: 'initial', 'pausedAt120', 'closing'
-    const pauseAtFrame = 120;
-    const fps = 24;
-    const pauseTime = pauseAtFrame / fps;
+    let animationState = 'initial'; // Stati possibili: 'initial', 'pausedAtStart', 'closing'
+    const pauseAtFrame = 120; // Frame da cui mettere in pausa
+    const fps = 24; // Frame per secondo
+    const pauseTime = pauseAtFrame / fps; // Tempo in secondi per il frame specificato
 
     modelViewer.addEventListener('click', () => {
       console.log(`Click rilevato, stato corrente: ${animationState}`);
 
       if (animationState === 'initial') {
         console.log('Stato: initial. Avvio animazione fino al frame 120.');
-        modelViewer.currentTime = 0;
+        modelViewer.currentTime = 0; // Iniziamo dall'inizio
         modelViewer.play();
         animationState = 'playingTo120';
 
@@ -49,15 +49,15 @@
           if (animationState === 'playingTo120' && modelViewer.currentTime >= pauseTime) {
             modelViewer.pause(); // Pausa al frame 120
             console.log('Animazione messa in pausa al frame 120.');
-            animationState = 'pausedAt120';
+            animationState = 'pausedAtStart'; // Cambia lo stato a pausedAtStart
           } else if (animationState === 'playingTo120') {
             requestAnimationFrame(checkFrame); // Continua a controllare fino a che non si raggiunge il frame 120
           }
         };
         
         requestAnimationFrame(checkFrame);
-      } else if (animationState === 'pausedAt120') {
-        console.log('Stato: pausedAt120. Riprendo animazione fino alla fine.');
+      } else if (animationState === 'pausedAtStart') {
+        console.log('Stato: pausedAtStart. Riprendo animazione fino alla fine.');
         modelViewer.play();
         animationState = 'playingToEnd';
 
@@ -65,9 +65,9 @@
           console.log(`Verifica fine (playingToEnd): currentTime = ${modelViewer.currentTime.toFixed(2)}, duration = ${modelViewer.duration.toFixed(2)}`);
 
           if (animationState === 'playingToEnd' && modelViewer.currentTime >= modelViewer.duration) {
-            modelViewer.pause(); // Pausa alla fine dell'animazione
+            modelViewer.pause(); // Metti in pausa alla fine dell'animazione
             console.log('Animazione finita e messa in pausa alla fine.');
-            animationState = 'closing';
+            animationState = 'closing'; // Imposta lo stato su closing
           } else if (animationState === 'playingToEnd') {
             requestAnimationFrame(checkEnd); // Continua a controllare fino a che non termina l'animazione
           }
