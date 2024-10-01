@@ -29,59 +29,51 @@
 
   <script>
     const modelViewer = document.getElementById('sens');
-    let animationState = 0; // 0: stato iniziale, 1: apertura fermata, 2: chiusura completata
+    let animationState = 'initial'; // Possibili stati: 'initial', 'pausedAt120', 'closing'
+
+    // Frame al quale fermare l'animazione (e convertito in tempo in secondi)
     const fps = 24; // Frame per secondo del modello
-    const pauseAtFrame = 120; // Frame specificato
-    const pauseTime = pauseAtFrame / fps; // Tempo corrispondente al frame specificato
-    let intervalHandler = null; // Variabile per gestire l'intervallo
+    const pauseAtFrame = 120; 
+    const pauseTime = pauseAtFrame / fps; 
 
     modelViewer.addEventListener('click', () => {
-      if (animationState === 0) {
-        // Primo clic: Avvia l'animazione e fermala al frame 120
-        modelViewer.currentTime = 0; // Imposta l'animazione all'inizio
+      if (animationState === 'initial') {
+        // Primo click: inizia l'animazione e fermala al frame 120
+        modelViewer.currentTime = 0; // Riavvia l'animazione all'inizio
         modelViewer.play();
 
-        // Imposta un intervallo per fermare l'animazione al frame specificato
-        intervalHandler = setInterval(() => {
+        const stopAtFrame120 = setInterval(() => {
           if (modelViewer.currentTime >= pauseTime) {
-            modelViewer.pause(); // Ferma l'animazione
-            clearInterval(intervalHandler); // Pulisci l'intervallo
-            animationState = 1; // Passa allo stato di apertura fermata
+            modelViewer.pause(); // Pausa al frame 120
+            clearInterval(stopAtFrame120); // Cancella il controllo dell'intervallo
+            animationState = 'pausedAt120'; // Aggiorna lo stato
           }
-        }, 100); // Verifica ogni 100ms
+        }, 100); // Controlla ogni 100ms
 
-      } else if (animationState === 1) {
-        // Secondo clic: Riprendi l'animazione dal punto in cui era stata fermata
+      } else if (animationState === 'pausedAt120') {
+        // Secondo click: riprendi l'animazione dal frame 120 fino alla fine
         modelViewer.play();
 
-        // Una volta che l'animazione termina, la mettiamo in pausa e aggiornamo lo stato
-        modelViewer.addEventListener('finished', () => {
-          modelViewer.pause(); // Ferma l'animazione al termine
-          animationState = 2; // Passa allo stato di chiusura completata
-        }, { once: true }); // Assicura che l'evento venga ascoltato solo una volta
-
-      } else if (animationState === 2) {
-        // Terzo clic: Riavvia l'animazione dall'inizio
-        modelViewer.currentTime = 0; // Riparte dall'inizio
-        modelViewer.pause();
-
-        // Imposta un intervallo per fermare di nuovo l'animazione al frame 120
-        intervalHandler = setInterval(() => {
-          if (modelViewer.currentTime >= pauseTime) {
-            modelViewer.pause(); // Ferma al frame specificato
-            clearInterval(intervalHandler); // Pulisci l'intervallo
-            animationState = 1; // Torna allo stato di apertura fermata
+        const stopAtEnd = setInterval(() => {
+          if (modelViewer.currentTime >= modelViewer.duration) {
+            modelViewer.pause(); // Pausa al termine dell'animazione
+            clearInterval(stopAtEnd); // Cancella il controllo dell'intervallo
+            animationState = 'closing'; // Aggiorna lo stato
           }
-        }, 100); // Verifica ogni 100ms
-      }
-    });
+        }, 100); // Controlla ogni 100ms
 
-    // Gestisci l'evento quando l'animazione finisce per evitare il loop
-    modelViewer.addEventListener('finished', () => {
-      if (animationState === 1) {
-        // Se siamo nello stato di chiusura, non deve partire di nuovo
-        modelViewer.pause();
-        animationState = 2;
+      } else if (animationState === 'closing') {
+        // Terzo click: ricomincia l'animazione dall'inizio
+        modelViewer.currentTime = 0; // Riporta all'inizio dell'animazione
+        modelViewer.play();
+
+        const stopAtFrame120Again = setInterval(() => {
+          if (modelViewer.currentTime >= pauseTime) {
+            modelViewer.pause(); // Pausa nuovamente al frame 120
+            clearInterval(stopAtFrame120Again); // Cancella il controllo dell'intervallo
+            animationState = 'pausedAt120'; // Torna allo stato di apertura fermata
+          }
+        }, 100); // Controlla ogni 100ms
       }
     });
   </script>
