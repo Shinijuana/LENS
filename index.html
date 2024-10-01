@@ -29,13 +29,12 @@
 
   <script>
     const modelViewer = document.getElementById('sens');
-    let animationState = 'initial'; // Stati possibili: 'initial', 'pausedAt120', 'closing'
+    let animationState = 'initial'; // Stati possibili: 'initial', 'pausedAt120', 'pausedAt239', 'closing'
     const pauseAtFrame1 = 120; // Frame da cui mettere in pausa alla prima pausa
     const pauseAtFrame2 = 239; // Frame da cui mettere in pausa alla seconda pausa
     const fps = 24; // Frame per secondo
     const pauseTime1 = pauseAtFrame1 / fps; // Tempo in secondi per il frame 120
     const pauseTime2 = pauseAtFrame2 / fps; // Tempo in secondi per il frame 239
-    const durationTime = 9.96; // Durata totale dell'animazione
 
     modelViewer.addEventListener('click', () => {
       console.log(`Click rilevato, stato corrente: ${animationState}`);
@@ -60,27 +59,43 @@
         
         requestAnimationFrame(checkFrame);
       } else if (animationState === 'pausedAt120') {
-        console.log('Stato: pausedAt120. Riprendo animazione fino alla fine.');
+        console.log('Stato: pausedAt120. Riprendo animazione fino al frame 239.');
         modelViewer.currentTime = pauseTime1; // Riprendi dal frame 120
         modelViewer.play(); // Avvia l'animazione
 
         const checkEnd = () => {
-          console.log(`Verifica fine (playingToEnd): currentTime = ${modelViewer.currentTime.toFixed(2)}, duration = ${modelViewer.duration.toFixed(2)}`);
+          console.log(`Verifica fine (playingToEnd): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime2.toFixed(2)}`);
 
           // Controlla se siamo al frame 239 per la seconda pausa
           if (modelViewer.currentTime >= pauseTime2) {
             modelViewer.pause(); // Metti in pausa al frame 239
             console.log('Animazione finita e messa in pausa al frame 239.');
-            animationState = 'closing'; // Imposta lo stato su closing
+            animationState = 'pausedAt239'; // Imposta lo stato su pausedAt239
           } else {
             requestAnimationFrame(checkEnd); // Continua a controllare fino a che non termina l'animazione
           }
         };
 
         requestAnimationFrame(checkEnd);
-      } else if (animationState === 'closing') {
-        console.log('Stato: closing. Ignoro clic.');
-        // Ignoriamo i clic se siamo in chiusura
+      } else if (animationState === 'pausedAt239') {
+        console.log('Stato: pausedAt239. Riprendo animazione fino al frame 120.');
+        modelViewer.currentTime = pauseTime2; // Riprendi dal frame 239
+        modelViewer.play(); // Avvia l'animazione
+
+        const checkStart = () => {
+          console.log(`Verifica inizio (playingTo120): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime1.toFixed(2)}`);
+
+          // Controlla se siamo tornati al frame 120
+          if (modelViewer.currentTime >= pauseTime1) {
+            modelViewer.pause(); // Metti in pausa al frame 120
+            console.log('Animazione finita e messa in pausa al frame 120.');
+            animationState = 'pausedAt120'; // Ritorna allo stato pausedAt120
+          } else {
+            requestAnimationFrame(checkStart); // Continua a controllare fino a che non torna al frame 120
+          }
+        };
+
+        requestAnimationFrame(checkStart);
       }
     });
 
