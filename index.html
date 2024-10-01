@@ -29,51 +29,59 @@
 
   <script>
     const modelViewer = document.getElementById('sens');
-    let animationState = 'initial'; // Possibili stati: 'initial', 'pausedAt120', 'closing'
-
-    // Frame al quale fermare l'animazione (e convertito in tempo in secondi)
-    const fps = 24; // Frame per secondo del modello
-    const pauseAtFrame = 120; 
-    const pauseTime = pauseAtFrame / fps; 
+    let animationState = 'initial'; // Stati possibili: 'initial', 'pausedAt120', 'closing'
+    const pauseAtFrame = 120;
+    const fps = 24;
+    const pauseTime = pauseAtFrame / fps;
 
     modelViewer.addEventListener('click', () => {
       if (animationState === 'initial') {
-        // Primo click: inizia l'animazione e fermala al frame 120
-        modelViewer.currentTime = 0; // Riavvia l'animazione all'inizio
+        // Primo click: parte l'animazione e fermala al frame 120
+        modelViewer.currentTime = 0;
         modelViewer.play();
-
-        const stopAtFrame120 = setInterval(() => {
-          if (modelViewer.currentTime >= pauseTime) {
+        animationState = 'playingTo120';
+        
+        const checkFrame = () => {
+          if (animationState === 'playingTo120' && modelViewer.currentTime >= pauseTime) {
             modelViewer.pause(); // Pausa al frame 120
-            clearInterval(stopAtFrame120); // Cancella il controllo dell'intervallo
-            animationState = 'pausedAt120'; // Aggiorna lo stato
+            animationState = 'pausedAt120';
+          } else if (animationState === 'playingTo120') {
+            requestAnimationFrame(checkFrame); // Continua a controllare fino a che non si raggiunge il frame 120
           }
-        }, 100); // Controlla ogni 100ms
-
+        };
+        
+        requestAnimationFrame(checkFrame);
       } else if (animationState === 'pausedAt120') {
-        // Secondo click: riprendi l'animazione dal frame 120 fino alla fine
+        // Secondo click: riprendi l'animazione fino alla fine
         modelViewer.play();
+        animationState = 'playingToEnd';
 
-        const stopAtEnd = setInterval(() => {
-          if (modelViewer.currentTime >= modelViewer.duration) {
-            modelViewer.pause(); // Pausa al termine dell'animazione
-            clearInterval(stopAtEnd); // Cancella il controllo dell'intervallo
-            animationState = 'closing'; // Aggiorna lo stato
+        const checkEnd = () => {
+          if (animationState === 'playingToEnd' && modelViewer.currentTime >= modelViewer.duration) {
+            modelViewer.pause(); // Pausa alla fine dell'animazione
+            animationState = 'closing';
+          } else if (animationState === 'playingToEnd') {
+            requestAnimationFrame(checkEnd); // Continua a controllare fino a che non termina l'animazione
           }
-        }, 10); // Controlla ogni 100ms
+        };
 
+        requestAnimationFrame(checkEnd);
       } else if (animationState === 'closing') {
         // Terzo click: ricomincia l'animazione dall'inizio
-        modelViewer.currentTime = 0; // Riporta all'inizio dell'animazione
+        modelViewer.currentTime = 0;
         modelViewer.play();
+        animationState = 'playingTo120';
 
-        const stopAtFrame120Again = setInterval(() => {
-          if (modelViewer.currentTime >= pauseTime) {
-            modelViewer.pause(); // Pausa nuovamente al frame 120
-            clearInterval(stopAtFrame120Again); // Cancella il controllo dell'intervallo
-            animationState = 'pausedAt120'; // Torna allo stato di apertura fermata
+        const checkFrameAgain = () => {
+          if (animationState === 'playingTo120' && modelViewer.currentTime >= pauseTime) {
+            modelViewer.pause(); // Pausa di nuovo al frame 120
+            animationState = 'pausedAt120';
+          } else if (animationState === 'playingTo120') {
+            requestAnimationFrame(checkFrameAgain); // Continua a controllare fino a che non si raggiunge il frame 120
           }
-        }, 100); // Controlla ogni 100ms
+        };
+
+        requestAnimationFrame(checkFrameAgain);
       }
     });
   </script>
