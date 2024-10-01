@@ -6,48 +6,10 @@
   <title>Esperienza AR - Oggetto Unico</title>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
-    :not(:defined) > * {
-      display: none;
-    }
-
     model-viewer {
       background-color: #ffffff;
-      overflow-x: hidden;
       width: 100%;
       height: 100vh;
-    }
-
-    #ar-button {
-      background-image: url(assets/ic_view_in_ar_new_googblue_48dp.png);
-      background-repeat: no-repeat;
-      background-size: 20px 20px;
-      background-position: 12px 50%;
-      background-color: #fff;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      white-space: nowrap;
-      bottom: 132px;
-      padding: 0px 16px 0px 40px;
-      font-family: Roboto Regular, Helvetica Neue, sans-serif;
-      font-size: 14px;
-      color:#4285f4;
-      height: 36px;
-      line-height: 36px;
-      border-radius: 18px;
-      border: 1px solid #DADCE0;
-    }
-
-    #ar-button:active {
-      background-color: #E8EAED;
-    }
-
-    #ar-button:focus {
-      outline: none;
-    }
-
-    #ar-button:focus-visible {
-      outline: 1px solid #4285f4;
     }
   </style>
 </head>
@@ -63,59 +25,63 @@
     camera-controls 
     touch-action="pan-y" 
     alt="Un modello 3D di un oggetto">
-    
-    <button slot="ar-button" id="ar-button">
-      View in your space
-    </button>
   </model-viewer>
 
   <script>
     const modelViewer = document.getElementById('sens');
-    let animationState = 0; // 0: stato iniziale, 1: apertura completata, 2: chiusura completata
-    const fps = 24; // Frame per secondo dell'animazione
+    let animationState = 0; // 0: stato iniziale, 1: apertura fermata, 2: chiusura completata
+    const fps = 24; // Frame per secondo del modello
+    const pauseAtFrame = 120; // Frame specificato
+    const pauseTime = pauseAtFrame / fps; // Tempo corrispondente al frame specificato
 
     modelViewer.addEventListener('click', () => {
       if (animationState === 0) {
-        // Primo clic: avvia animazione apertura
-        modelViewer.currentTime = 0; // Inizia dall'inizio
+        // Primo clic: Avvia l'animazione e fermala al frame 120
+        modelViewer.currentTime = 0; // Imposta all'inizio dell'animazione
         modelViewer.play();
 
-        // Imposta un listener per fermare l'animazione al frame 120
-        modelViewer.addEventListener('timeupdate', () => {
-          if (modelViewer.currentTime >= 120 / fps) {
-            modelViewer.pause(); // Ferma l'animazione al frame 120
-            animationState = 1; // Cambia stato a "apertura completata"
+        const pauseHandler = () => {
+          if (modelViewer.currentTime >= pauseTime) {
+            modelViewer.pause(); // Ferma l'animazione al frame specificato
+            modelViewer.removeEventListener('timeupdate', pauseHandler);
+            animationState = 1; // Passa allo stato di apertura fermata
           }
-        }, { once: true });
+        };
 
+        modelViewer.addEventListener('timeupdate', pauseHandler);
+        
       } else if (animationState === 1) {
-        // Secondo clic: avvia animazione di chiusura
+        // Secondo clic: Riprendi l'animazione dalla posizione fermata
         modelViewer.play();
 
-        // Imposta un listener per fermare l'animazione alla fine
         modelViewer.addEventListener('finished', () => {
-          modelViewer.pause(); // Ferma l'animazione alla fine
-          animationState = 2; // Cambia stato a "chiusura completata"
+          modelViewer.pause(); // Ferma l'animazione al termine
+          animationState = 2; // Passa allo stato di chiusura completata
         }, { once: true });
 
       } else if (animationState === 2) {
-        // Terzo clic: riparte la sequenza di apertura
+        // Terzo clic: Riavvia l'animazione dall'inizio
         modelViewer.currentTime = 0; // Riparte dall'inizio
         modelViewer.play();
 
-        // Imposta un listener per fermare di nuovo al frame 120
-        modelViewer.addEventListener('timeupdate', () => {
-          if (modelViewer.currentTime >= 120 / fps) {
-            modelViewer.pause(); // Ferma al frame 120
-            animationState = 1; // Torna allo stato "apertura completata"
+        const pauseHandler = () => {
+          if (modelViewer.currentTime >= pauseTime) {
+            modelViewer.pause(); // Ferma al frame specificato
+            modelViewer.removeEventListener('timeupdate', pauseHandler);
+            animationState = 1; // Torna allo stato di apertura fermata
           }
-        }, { once: true });
+        };
+
+        modelViewer.addEventListener('timeupdate', pauseHandler);
       }
     });
 
-    // Assicurati che l'animazione non ricominci automaticamente alla fine
+    // Eventuale ascoltatore per assicurarsi che non parta un loop indesiderato
     modelViewer.addEventListener('finished', () => {
-      modelViewer.pause();
+      modelViewer.pause(); // Ferma l'animazione alla fine se viene raggiunta
+      if (animationState === 1) {
+        modelViewer.currentTime = modelViewer.duration; // Imposta all'ultimo frame alla fine dell'animazione
+      }
     });
   </script>
 
