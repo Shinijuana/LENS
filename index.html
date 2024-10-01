@@ -58,17 +58,17 @@
         requestAnimationFrame(checkFrame);
       } else if (animationState === 'pausedAtStart') {
         console.log('Stato: pausedAtStart. Riprendo animazione fino alla fine.');
-        modelViewer.play();
-        animationState = 'playingToEnd';
+        modelViewer.currentTime = modelViewer.duration; // Torna alla fine dell'animazione
+        modelViewer.play(); // Avvia l'animazione
 
         const checkEnd = () => {
           console.log(`Verifica fine (playingToEnd): currentTime = ${modelViewer.currentTime.toFixed(2)}, duration = ${modelViewer.duration.toFixed(2)}`);
 
-          if (animationState === 'playingToEnd' && modelViewer.currentTime >= modelViewer.duration) {
+          if (modelViewer.currentTime >= modelViewer.duration) {
             modelViewer.pause(); // Metti in pausa alla fine dell'animazione
             console.log('Animazione finita e messa in pausa alla fine.');
             animationState = 'closing'; // Imposta lo stato su closing
-          } else if (animationState === 'playingToEnd') {
+          } else {
             requestAnimationFrame(checkEnd); // Continua a controllare fino a che non termina l'animazione
           }
         };
@@ -76,7 +76,7 @@
         requestAnimationFrame(checkEnd);
       } else if (animationState === 'closing') {
         console.log('Stato: closing. Ignoro clic.');
-        // Qui non facciamo nulla poiché l'animazione è già in chiusura
+        // Ignoriamo i clic se siamo in chiusura
       }
     });
 
