@@ -34,6 +34,7 @@
     const fps = 24; // Frame per secondo
     const pauseTime = pauseAtFrame / fps; // Tempo in secondi per il frame specificato
     const loopStartTime = 0; // Tempo all'inizio del ciclo di apertura
+    const durationTime = 9.96; // Durata dell'animazione
 
     modelViewer.addEventListener('click', () => {
       console.log(`Click rilevato, stato corrente: ${animationState}`);
@@ -66,7 +67,7 @@
           console.log(`Verifica fine (playingToEnd): currentTime = ${modelViewer.currentTime.toFixed(2)}, duration = ${modelViewer.duration.toFixed(2)}`);
 
           // Controlla se siamo alla fine dell'animazione
-          if (modelViewer.currentTime >= modelViewer.duration) {
+          if (modelViewer.currentTime >= durationTime) {
             modelViewer.currentTime = loopStartTime; // Imposta il tempo all'inizio del ciclo di apertura
             modelViewer.pause(); // Metti in pausa all'inizio del ciclo di apertura
             console.log('Animazione finita e messa in pausa all\'inizio del ciclo di apertura.');
