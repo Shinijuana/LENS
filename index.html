@@ -63,7 +63,7 @@
       } else if (animationState === 2) {
         // Terzo clic: Riavvia l'animazione dall'inizio
         modelViewer.currentTime = 0; // Riparte dall'inizio
-        modelViewer.play();
+        modelViewer.pause();
 
         // Imposta un intervallo per fermare di nuovo l'animazione al frame 120
         intervalHandler = setInterval(() => {
