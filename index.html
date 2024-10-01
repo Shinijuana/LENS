@@ -75,25 +75,17 @@
 
         requestAnimationFrame(checkEnd);
       } else if (animationState === 'closing') {
-        console.log('Stato: closing. Ripeto animazione dall\'inizio.');
-        modelViewer.currentTime = 0;
-        modelViewer.play();
-        animationState = 'playingTo120';
-
-        const checkFrameAgain = () => {
-          console.log(`Verifica frame (playingTo120 di nuovo): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime.toFixed(2)}`);
-          
-          if (animationState === 'playingTo120' && modelViewer.currentTime >= pauseTime) {
-            modelViewer.pause(); // Pausa di nuovo al frame 120
-            console.log('Animazione messa in pausa al frame 120 (di nuovo).');
-            animationState = 'pausedAt120';
-          } else if (animationState === 'playingTo120') {
-            requestAnimationFrame(checkFrameAgain); // Continua a controllare fino a che non si raggiunge il frame 120
-          }
-        };
-
-        requestAnimationFrame(checkFrameAgain);
+        console.log('Stato: closing. Ignoro clic.');
+        // Qui non facciamo nulla poiché l'animazione è già in chiusura
       }
+    });
+
+    // Evento di fine animazione
+    modelViewer.addEventListener('finished', () => {
+      // Metti in pausa quando l'animazione è finita
+      modelViewer.pause(); 
+      console.log('Animazione finita e messa in pausa (evento finished).');
+      animationState = 'closing'; // Imposta lo stato su closing
     });
   </script>
 
