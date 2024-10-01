@@ -71,38 +71,51 @@
 
   <script>
     const modelViewer = document.getElementById('sens');
-    let isAnimationPlaying = false;
-    let isFirstClick = true; // Indica se è il primo clic
-    const pauseAtFrame = 120; // Frame al quale vuoi mettere in pausa
-    const fps = 24; // Frame per secondo del tuo modello
-    const pauseTime = pauseAtFrame / fps; // Tempo in secondi per il frame specificato
+    let animationState = 0; // 0: stato iniziale, 1: apertura completata, 2: chiusura completata
+    const fps = 24; // Frame per secondo dell'animazione
 
     modelViewer.addEventListener('click', () => {
-      if (isFirstClick) {
-        // Primo clic: inizia l'animazione e metti in pausa al frame 120
-        modelViewer.play(); // Avvia l'animazione
-        modelViewer.currentTime = pauseTime; // Imposta il tempo corrente al frame specificato
-        modelViewer.pause(); // Ferma l'animazione al frame specificato
-        isFirstClick = false; // Cambia stato per il prossimo clic
-        isAnimationPlaying = true; // Indica che l'animazione è in corso
-      } else if (isAnimationPlaying) {
-        // Secondo clic: riprendi l'animazione
-        modelViewer.play(); // Avvia l'animazione
-        isAnimationPlaying = false; // Cambia stato per il ciclo successivo
-      } else {
-        // Se l'animazione è già terminata e si vuole ripetere
-        modelViewer.currentTime = 0; // Torna all'inizio
-        modelViewer.play(); // Avvia l'animazione
-        isAnimationPlaying = false; // Imposta su falso in modo da poter ripetere
+      if (animationState === 0) {
+        // Primo clic: avvia animazione apertura
+        modelViewer.currentTime = 0; // Inizia dall'inizio
+        modelViewer.play();
+
+        // Imposta un listener per fermare l'animazione al frame 120
+        modelViewer.addEventListener('timeupdate', () => {
+          if (modelViewer.currentTime >= 120 / fps) {
+            modelViewer.pause(); // Ferma l'animazione al frame 120
+            animationState = 1; // Cambia stato a "apertura completata"
+          }
+        }, { once: true });
+
+      } else if (animationState === 1) {
+        // Secondo clic: avvia animazione di chiusura
+        modelViewer.play();
+
+        // Imposta un listener per fermare l'animazione alla fine
+        modelViewer.addEventListener('finished', () => {
+          modelViewer.pause(); // Ferma l'animazione alla fine
+          animationState = 2; // Cambia stato a "chiusura completata"
+        }, { once: true });
+
+      } else if (animationState === 2) {
+        // Terzo clic: riparte la sequenza di apertura
+        modelViewer.currentTime = 0; // Riparte dall'inizio
+        modelViewer.play();
+
+        // Imposta un listener per fermare di nuovo al frame 120
+        modelViewer.addEventListener('timeupdate', () => {
+          if (modelViewer.currentTime >= 120 / fps) {
+            modelViewer.pause(); // Ferma al frame 120
+            animationState = 1; // Torna allo stato "apertura completata"
+          }
+        }, { once: true });
       }
     });
 
-    // Gestisci l'evento quando l'animazione finisce
+    // Assicurati che l'animazione non ricominci automaticamente alla fine
     modelViewer.addEventListener('finished', () => {
-      // Imposta il tempo corrente all'ultimo frame dell'animazione
-      modelViewer.currentTime = modelViewer.duration; // Imposta al termine dell'animazione
-      modelViewer.pause(); // Metti in pausa
-      isAnimationPlaying = false; // Indica che l'animazione è finita
+      modelViewer.pause();
     });
   </script>
 
