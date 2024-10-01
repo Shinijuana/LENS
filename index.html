@@ -29,9 +29,9 @@
 
   <script>
     const modelViewer = document.getElementById('sens');
-    let animationState = 'initial'; // Stati possibili: 'initial', 'pausedAt120', 'pausedAt239', 'closing'
+    let animationState = 'initial'; // Stati possibili: 'initial', 'pausedAt120', 'pausedAt239'
     const pauseAtFrame1 = 120; // Frame da cui mettere in pausa alla prima pausa
-    const pauseAtFrame2 = 236; // Frame da cui mettere in pausa alla seconda pausa
+    const pauseAtFrame2 = 239; // Frame da cui mettere in pausa alla seconda pausa
     const fps = 24; // Frame per secondo
     const pauseTime1 = pauseAtFrame1 / fps; // Tempo in secondi per il frame 120
     const pauseTime2 = pauseAtFrame2 / fps; // Tempo in secondi per il frame 239
@@ -78,8 +78,8 @@
 
         requestAnimationFrame(checkEnd);
       } else if (animationState === 'pausedAt239') {
-        console.log('Stato: pausedAt239. Riprendo animazione fino al frame 120.');
-        modelViewer.currentTime = pauseTime2; // Riprendi dal frame 239
+        console.log('Stato: pausedAt239. Riprendo animazione dall\'inizio.');
+        modelViewer.currentTime = 0; // Iniziare da zero per la nuova apertura
         modelViewer.play(); // Avvia l'animazione
 
         const checkStart = () => {
@@ -104,7 +104,7 @@
       // Metti in pausa quando l'animazione è finita
       modelViewer.pause(); 
       console.log('Animazione finita e messa in pausa (evento finished).');
-      animationState = 'closing'; // Imposta lo stato su closing
+      animationState = 'pausedAt120'; // Modificato per riportare a pausedAt120
     });
   </script>
 
