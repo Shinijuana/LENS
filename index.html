@@ -39,16 +39,13 @@
 
     // Aggiungi un listener per l'evento 'load' del model-viewer
     modelViewer.addEventListener('load', () => {
-      console.log("Modello caricato, ora posso chiamare updateFraming.");
-      modelViewer.currentTime = 120; // Sposta al frame 120
-      
-      setTimeout(() => {
+    console.log("Modello caricato, ora posso chiamare updateFraming.");
+    modelViewer.currentTime = 120; // Sposta al frame 120
     modelViewer.updateFraming(); // Aggiorna la camera
     
     setTimeout(() => {
       modelViewer.currentTime = 0; // Ritorna al frame iniziale dopo che la camera è stata aggiornata
-    }, 100); // Ritardo di 100ms per garantire che il framing sia aggiornato prima di tornare a 0
-  }, 100); // Ritardo di 100ms per assicurare che l'aggiornamento del frame 120 avvenga correttamente
+    }, 1000); // Ritardo di 100ms per garantire che il framing sia aggiornato prima di tornare a 0
 });
 
     const handleClick = () => {
