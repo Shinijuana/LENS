@@ -38,7 +38,7 @@
     let isAnimating = false; // Flag per controllare se l'animazione è in corso
 
     const handleClick = () => {
-      console.log(Click rilevato, stato corrente: ${animationState});
+      console.log('Click rilevato, stato corrente: ${animationState}');
 
       if (animationState === 'initial') {
         console.log('Stato: initial. Avvio animazione fino al frame 120.');
@@ -48,7 +48,7 @@
         animationState = 'playingTo120';
 
         const checkFrame = () => {
-          console.log(Verifica frame (playingTo120): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime1.toFixed(2)});
+          console.log('Verifica frame (playingTo120): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime1.toFixed(2)}');
           
           if (animationState === 'playingTo120' && modelViewer.currentTime >= pauseTime1) {
             modelViewer.pause(); // Pausa al frame 120
@@ -70,7 +70,7 @@
         isAnimating = true; // Imposta il flag
 
         const checkEnd = () => {
-          console.log(Verifica fine (playingToEnd): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime2.toFixed(2)});
+          console.log('Verifica fine (playingToEnd): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime2.toFixed(2)}');
 
           // Controlla se siamo al frame 239 per la seconda pausa
           if (modelViewer.currentTime >= pauseTime2) {
@@ -93,7 +93,7 @@
         isAnimating = true; // Imposta il flag
 
         const checkStart = () => {
-          console.log(Verifica inizio (playingTo120): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime1.toFixed(2)});
+          console.log('Verifica inizio (playingTo120): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime1.toFixed(2)}');
 
           // Controlla se siamo tornati al frame 120
           if (modelViewer.currentTime >= pauseTime1) {
