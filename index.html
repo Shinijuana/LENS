@@ -43,7 +43,6 @@
       
       if (animationState === 'initial') {
         console.log('Stato: initial. Avvio animazione fino al frame 120.');
-        modelViewer.currentTime = 120;
         modelViewer.updateFraming();
         modelViewer.currentTime = 0; // Iniziamo dall'inizio
         modelViewer.play();
@@ -60,7 +59,8 @@
             animationState = 'pausedAt120'; // Cambia lo stato a pausedAt120
             isAnimating = false; // Ripristina il flag
           } else if (animationState === 'playingTo120') {
-            requestAnimationFrame(checkFrame); // Continua a controllare fino a che non si raggiunge il frame 120
+            requestAnimationFrame(checkFrame);
+            modelViewer.updateFraming();// Continua a controllare fino a che non si raggiunge il frame 120
           }
         };
         
