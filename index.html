@@ -18,8 +18,7 @@
   <model-viewer 
     id="sens"
     src="full.glb" 
-    poster="assets/sensitron.png" 
-    position="0 0 -5"
+    poster="assets/sensitron.png"
     tone-mapping="neutral" 
     shadow-intensity="1" 
     ar 
@@ -54,6 +53,7 @@
           if (animationState === 'playingTo120' && modelViewer.currentTime >= pauseTime1) {
             modelViewer.pause(); // Pausa al frame 120
             console.log('Animazione messa in pausa al frame 120.');
+            modelViewer.updateFraming();
             animationState = 'pausedAt120'; // Cambia lo stato a pausedAt120
             isAnimating = false; // Ripristina il flag
           } else if (animationState === 'playingTo120') {
@@ -65,6 +65,7 @@
       } else if (animationState === 'pausedAt120') {
         console.log('Stato: pausedAt120. Riprendo animazione fino al frame 239.');
         modelViewer.currentTime = pauseTime1; // Riprendi dal frame 120
+        modelViewer.updateFraming();
         modelViewer.play(); // Avvia l'animazione
         isAnimating = true; // Imposta il flag
 
@@ -73,6 +74,7 @@
 
           // Controlla se siamo al frame 239 per la seconda pausa
           if (modelViewer.currentTime >= pauseTime2) {
+            modelViewer.updateFraming();
             modelViewer.pause(); // Metti in pausa al frame 239
             console.log('Animazione finita e messa in pausa al frame 239.');
             animationState = 'pausedAt239'; // Imposta lo stato su pausedAt239
@@ -84,6 +86,7 @@
 
         requestAnimationFrame(checkEnd);
       } else if (animationState === 'pausedAt239') {
+        modelViewer.updateFraming();
         console.log('Stato: pausedAt239. Riprendo animazione dall\'inizio.');
         modelViewer.currentTime = 0; // Iniziare da zero per la nuova apertura
         modelViewer.play(); // Avvia l'animazione
@@ -95,6 +98,7 @@
           // Controlla se siamo tornati al frame 120
           if (modelViewer.currentTime >= pauseTime1) {
             modelViewer.pause(); // Metti in pausa al frame 120
+            modelViewer.updateFraming();
             console.log('Animazione finita e messa in pausa al frame 120.');
             animationState = 'pausedAt120'; // Ritorna allo stato pausedAt120
             isAnimating = false; // Ripristina il flag
@@ -118,6 +122,7 @@
     modelViewer.addEventListener('finished', () => {
       // Metti in pausa quando l'animazione è finita
       modelViewer.pause(); 
+      modelViewer.updateFraming();
       console.log('Animazione finita e messa in pausa (evento finished).');
       animationState = 'pausedAt120'; // Modificato per riportare a pausedAt120
       isAnimating = false; // Ripristina il flag
