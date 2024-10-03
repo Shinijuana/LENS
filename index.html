@@ -1,3 +1,32 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sensitron AR</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <style>
+    model-viewer {
+      background-color: #ffffff;
+      width: 100%;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+
+  <model-viewer 
+    id="sens"
+    src="full.glb" 
+    poster="assets/sensitron.png"
+    tone-mapping="neutral" 
+    shadow-intensity="1" 
+    ar 
+    camera-controls 
+    touch-action="pan-y" 
+    alt="Un modello 3D di un oggetto">
+  </model-viewer>
+
 <script>
   const modelViewer = document.getElementById('sens');
   let animationState = 'initial'; // Stati possibili: 'initial', 'pausedAt120', 'pausedAt239'
@@ -124,3 +153,6 @@
     isAnimating = false;
   });
 </script>
+
+</body>
+</html>
