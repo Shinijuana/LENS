@@ -27,132 +27,109 @@
     alt="Un modello 3D di un oggetto">
   </model-viewer>
 
-<script>
-  const modelViewer = document.getElementById('sens');
-  let animationState = 'initial'; // Stati possibili: 'initial', 'pausedAt120', 'pausedAt239'
-  const pauseAtFrame1 = 120; // Frame da cui mettere in pausa alla prima pausa
-  const pauseAtFrame2 = 237; // Frame da cui mettere in pausa alla seconda pausa
-  const fps = 24; // Frame per secondo
-  const pauseTime1 = pauseAtFrame1 / fps; // Tempo in secondi per il frame 120
-  const pauseTime2 = pauseAtFrame2 / fps; // Tempo in secondi per il frame 239
-  let isAnimating = false; // Flag per controllare se l'animazione è in corso
+  <script>
+    const modelViewer = document.getElementById('sens');
+    let animationState = 'initial'; // Stati possibili: 'initial', 'pausedAt120', 'pausedAt239'
+    const pauseAtFrame1 = 120; // Frame da cui mettere in pausa alla prima pausa
+    const pauseAtFrame2 = 237; // Frame da cui mettere in pausa alla seconda pausa
+    const fps = 24; // Frame per secondo
+    const pauseTime1 = pauseAtFrame1 / fps; // Tempo in secondi per il frame 120
+    const pauseTime2 = pauseAtFrame2 / fps; // Tempo in secondi per il frame 239
+    let isAnimating = false; // Flag per controllare se l'animazione è in corso
 
-  // Funzione per interpolare la transizione della camera in maniera fluida
-  const smoothCameraTransition = (duration = 1000) => {
-    const startOrbit = modelViewer.getCameraOrbit(); // Ottieni i parametri di orbita attuali
-    modelViewer.updateFraming(); // Applica l'aggiornamento dell'inquadratura
-    const endOrbit = modelViewer.getCameraOrbit(); // Ottieni i nuovi parametri di orbita
-    
-    const startTime = performance.now();
-
-    const animate = (currentTime) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1); // Normalizza il tempo passato (0 a 1)
+    const handleClick = () => {
+      console.log(Click rilevato, stato corrente: ${animationState});
+      modelViewer.currentTime = 120;
+      modelViewer.updateFraming();
       
-      // Interpolazione lineare fra i valori iniziali e finali dell'orbita
-      const lerp = (start, end, t) => start + t * (end - start);
-      
-      const newTheta = lerp(startOrbit.theta, endOrbit.theta, progress);
-      const newPhi = lerp(startOrbit.phi, endOrbit.phi, progress);
-      const newRadius = lerp(startOrbit.radius, endOrbit.radius, progress);
+      if (animationState === 'initial') {
+        console.log('Stato: initial. Avvio animazione fino al frame 120.');
+        modelViewer.currentTime = 0; // Iniziamo dall'inizio
+        modelViewer.play();
+        isAnimating = true; // Imposta il flag per indicare che l'animazione è in corso
+        animationState = 'playingTo120';
 
-      // Applica la nuova orbita interpolata al `model-viewer`
-      modelViewer.cameraOrbit = `${newTheta}rad ${newPhi}rad ${newRadius}m`;
+        const checkFrame = () => {
+          console.log(Verifica frame (playingTo120): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime1.toFixed(2)});
+          
+          if (animationState === 'playingTo120' && modelViewer.currentTime >= pauseTime1) {
+            modelViewer.pause(); // Pausa al frame 120
+            console.log('Animazione messa in pausa al frame 120.');
+            
+            animationState = 'pausedAt120'; // Cambia lo stato a pausedAt120
+            isAnimating = false; // Ripristina il flag
+          } else if (animationState === 'playingTo120') {
+            requestAnimationFrame(checkFrame); // Continua a controllare fino a che non si raggiunge il frame 120
+          }
+        };
+        
+        requestAnimationFrame(checkFrame);
+      } else if (animationState === 'pausedAt120') {
+        console.log('Stato: pausedAt120. Riprendo animazione fino al frame 239.');
+        modelViewer.currentTime = pauseTime1; // Riprendi dal frame 120
+        modelViewer.updateFraming();
+        modelViewer.play(); // Avvia l'animazione
+        isAnimating = true; // Imposta il flag
 
-      if (progress < 1) {
-        requestAnimationFrame(animate);
+        const checkEnd = () => {
+          console.log(Verifica fine (playingToEnd): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime2.toFixed(2)});
+
+          // Controlla se siamo al frame 239 per la seconda pausa
+          if (modelViewer.currentTime >= pauseTime2) {
+           
+            modelViewer.pause(); // Metti in pausa al frame 239
+            console.log('Animazione finita e messa in pausa al frame 239.');
+            animationState = 'pausedAt239'; // Imposta lo stato su pausedAt239
+            isAnimating = false; // Ripristina il flag
+          } else {
+            requestAnimationFrame(checkEnd); // Continua a controllare fino a che non termina l'animazione
+          }
+        };
+
+        requestAnimationFrame(checkEnd);
+      } else if (animationState === 'pausedAt239') {
+        
+        console.log('Stato: pausedAt239. Riprendo animazione dall\'inizio.');
+        modelViewer.currentTime = 0; // Iniziare da zero per la nuova apertura
+        modelViewer.play(); // Avvia l'animazione
+        isAnimating = true; // Imposta il flag
+
+        const checkStart = () => {
+          console.log(Verifica inizio (playingTo120): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime1.toFixed(2)});
+
+          // Controlla se siamo tornati al frame 120
+          if (modelViewer.currentTime >= pauseTime1) {
+            modelViewer.pause(); // Metti in pausa al frame 120
+            
+            console.log('Animazione finita e messa in pausa al frame 120.');
+            animationState = 'pausedAt120'; // Ritorna allo stato pausedAt120
+            isAnimating = false; // Ripristina il flag
+          } else {
+            requestAnimationFrame(checkStart); // Continua a controllare fino a che non torna al frame 120
+          }
+        };
+
+        requestAnimationFrame(checkStart);
       }
     };
 
-    requestAnimationFrame(animate);
-  };
+    // Associa l'evento di click solo se non stiamo animando
+    modelViewer.addEventListener('click', () => {
+      if (!isAnimating) {
+        handleClick();
+      }
+    });
 
-  const handleClick = () => {
-    console.log(`Click rilevato, stato corrente: ${animationState}`);
-
-    if (animationState === 'initial') {
-      console.log('Stato: initial. Avvio animazione fino al frame 120.');
-      modelViewer.currentTime = 0; // Iniziamo dall'inizio
-      modelViewer.play();
-      isAnimating = true; // Imposta il flag per indicare che l'animazione è in corso
-      animationState = 'playingTo120';
-
-      const checkFrame = () => {
-        console.log(`Verifica frame (playingTo120): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime1.toFixed(2)}`);
-        
-        if (animationState === 'playingTo120' && modelViewer.currentTime >= pauseTime1) {
-          modelViewer.pause(); // Pausa al frame 120
-          console.log('Animazione messa in pausa al frame 120.');
-          smoothCameraTransition(); // Transizione fluida della camera
-          animationState = 'pausedAt120'; // Cambia lo stato a pausedAt120
-          isAnimating = false; // Ripristina il flag
-        } else if (animationState === 'playingTo120') {
-          requestAnimationFrame(checkFrame); // Continua a controllare fino a che non si raggiunge il frame 120
-        }
-      };
+    // Evento di fine animazione
+    modelViewer.addEventListener('finished', () => {
+      // Metti in pausa quando l'animazione è finita
+      modelViewer.pause(); 
       
-      requestAnimationFrame(checkFrame);
-    } else if (animationState === 'pausedAt120') {
-      console.log('Stato: pausedAt120. Riprendo animazione fino al frame 239.');
-      modelViewer.currentTime = pauseTime1; // Riprendi dal frame 120
-      modelViewer.play(); // Avvia l'animazione
-      smoothCameraTransition(); // Transizione fluida della camera
-      isAnimating = true; // Imposta il flag
-
-      const checkEnd = () => {
-        console.log(`Verifica fine (playingToEnd): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime2.toFixed(2)}`);
-
-        if (modelViewer.currentTime >= pauseTime2) {
-          modelViewer.pause(); // Metti in pausa al frame 239
-          console.log('Animazione finita e messa in pausa al frame 239.');
-          smoothCameraTransition(); // Transizione fluida della camera
-          animationState = 'pausedAt239'; // Imposta lo stato su pausedAt239
-          isAnimating = false; // Ripristina il flag
-        } else {
-          requestAnimationFrame(checkEnd); // Continua a controllare fino a che non termina l'animazione
-        }
-      };
-
-      requestAnimationFrame(checkEnd);
-    } else if (animationState === 'pausedAt239') {
-      console.log('Stato: pausedAt239. Riprendo animazione dall\'inizio.');
-      modelViewer.currentTime = 0; // Iniziare da zero per la nuova apertura
-      modelViewer.play(); // Avvia l'animazione
-      smoothCameraTransition(); // Transizione fluida della camera
-      isAnimating = true; // Imposta il flag
-
-      const checkStart = () => {
-        console.log(`Verifica inizio (playingTo120): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime1.toFixed(2)}`);
-
-        if (modelViewer.currentTime >= pauseTime1) {
-          modelViewer.pause(); // Metti in pausa al frame 120
-          smoothCameraTransition(); // Transizione fluida della camera
-          console.log('Animazione finita e messa in pausa al frame 120.');
-          animationState = 'pausedAt120'; // Ritorna allo stato pausedAt120
-          isAnimating = false; // Ripristina il flag
-        } else {
-          requestAnimationFrame(checkStart); // Continua a controllare fino a che non torna al frame 120
-        }
-      };
-
-      requestAnimationFrame(checkStart);
-    }
-  };
-
-  modelViewer.addEventListener('click', () => {
-    if (!isAnimating) {
-      handleClick();
-    }
-  });
-
-  modelViewer.addEventListener('finished', () => {
-    modelViewer.pause(); 
-    smoothCameraTransition(); // Transizione fluida della camera
-    console.log('Animazione finita e messa in pausa (evento finished).');
-    animationState = 'pausedAt120';
-    isAnimating = false;
-  });
-</script>
+      console.log('Animazione finita e messa in pausa (evento finished).');
+      animationState = 'pausedAt120'; // Modificato per riportare a pausedAt120
+      isAnimating = false; // Ripristina il flag
+    });
+  </script>
 
 </body>
 </html>
