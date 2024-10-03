@@ -73,6 +73,8 @@
         const checkEnd = () => {
           console.log(`Verifica fine (playingToEnd): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime2.toFixed(2)}`);
 
+          modelViewer.updateFraming();
+          
           // Controlla se siamo al frame 239 per la seconda pausa
           if (modelViewer.currentTime >= pauseTime2) {
             modelViewer.pause(); // Metti in pausa al frame 239
@@ -94,6 +96,8 @@
         const checkStart = () => {
           console.log(`Verifica inizio (playingTo120): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime1.toFixed(2)}`);
 
+          modelViewer.updateFraming();
+          
           // Controlla se siamo tornati al frame 120
           if (modelViewer.currentTime >= pauseTime1) {
             modelViewer.pause(); // Metti in pausa al frame 120
