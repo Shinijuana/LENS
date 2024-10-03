@@ -36,10 +36,6 @@
     const pauseTime1 = pauseAtFrame1 / fps; // Tempo in secondi per il frame 120
     const pauseTime2 = pauseAtFrame2 / fps; // Tempo in secondi per il frame 239
     let isAnimating = false; // Flag per controllare se l'animazione è in corso
-
-    modelViewer.currentTime = 120;
-    modelViewer.updateFraming();
-    modelViewer.currentTime = 0;
     
     const handleClick = () => {
       console.log(`Click rilevato, stato corrente: ${animationState}`);
@@ -47,6 +43,8 @@
       
       if (animationState === 'initial') {
         console.log('Stato: initial. Avvio animazione fino al frame 120.');
+        modelViewer.currentTime = 120;
+        modelViewer.updateFraming();
         modelViewer.currentTime = 0; // Iniziamo dall'inizio
         modelViewer.play();
         isAnimating = true; // Imposta il flag per indicare che l'animazione è in corso
@@ -70,7 +68,7 @@
       } else if (animationState === 'pausedAt120') {
         console.log('Stato: pausedAt120. Riprendo animazione fino al frame 239.');
         modelViewer.currentTime = pauseTime1; // Riprendi dal frame 120
-        modelViewer.updateFraming();
+        
         modelViewer.play(); // Avvia l'animazione
         isAnimating = true; // Imposta il flag
 
