@@ -87,6 +87,7 @@
       } else if (animationState === 'pausedAt239') {
         console.log('Stato: pausedAt239. Riprendo animazione dall\'inizio.');
         modelViewer.currentTime = 0; // Iniziare da zero per la nuova apertura
+        modelViewer.updateFraming();
         modelViewer.play(); // Avvia l'animazione
         isAnimating = true; // Imposta il flag
 
@@ -97,6 +98,7 @@
           if (modelViewer.currentTime >= pauseTime1) {
             modelViewer.pause(); // Metti in pausa al frame 120
             console.log('Animazione finita e messa in pausa al frame 120.');
+            modelViewer.updateFraming();
             animationState = 'pausedAt120'; // Ritorna allo stato pausedAt120
             isAnimating = false; // Ripristina il flag
           } else {
@@ -120,6 +122,7 @@
       // Metti in pausa quando l'animazione è finita
       modelViewer.pause(); 
       console.log('Animazione finita e messa in pausa (evento finished).');
+      modelViewer.updateFraming();
       animationState = 'pausedAt120'; // Modificato per riportare a pausedAt120
       isAnimating = false; // Ripristina il flag
     });
