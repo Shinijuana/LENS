@@ -36,6 +36,7 @@
     const pauseTime1 = pauseAtFrame1 / fps; // Tempo in secondi per il frame 120
     const pauseTime2 = pauseAtFrame2 / fps; // Tempo in secondi per il frame 239
     let isAnimating = false; // Flag per controllare se l'animazione è in corso
+    let isInAR = false; // Flag per controllare se siamo in modalità AR
 
     const handleClick = () => {
       console.log(`Click rilevato, stato corrente: ${animationState}`);
@@ -116,6 +117,26 @@
     // Associa l'evento di click solo se non stiamo animando
     modelViewer.addEventListener('click', () => {
       if (!isAnimating) {
+        handleClick();
+      }
+    });
+
+    // Ascolta i cambiamenti di stato di AR per sapere quando siamo in modalità AR
+    modelViewer.addEventListener('ar-status', (event) => {
+      if (event.detail.status === 'session-started') {
+        console.log('Entrato in modalità AR.');
+        isInAR = true;
+        modelViewer.pause(); // Ferma l'animazione in caso sia partita
+        isAnimating = false; // Ripristina il flag per evitare loop
+      } else if (event.detail.status === 'not-presenting') {
+        console.log('Uscito dalla modalità AR.');
+        isInAR = false;
+      }
+    });
+
+    // Aggiungi un evento di tocco per AR (per i dispositivi mobili)
+    modelViewer.addEventListener('touchstart', () => {
+      if (isInAR && !isAnimating) {
         handleClick();
       }
     });
