@@ -232,25 +232,17 @@
       }
     });
 
-    // Funzione per spostare il modello 3D al click sul terreno
-    modelViewer.addEventListener('click', (event) => {
-      if (isInAR) {
-        const hitTestResults = modelViewer.hitTest(event); // Ottieni i risultati del colpo
-        if (hitTestResults.length > 0) {
-          const hit = hitTestResults[0]; // Prendi il primo risultato
-          modelViewer.position = `${hit.position.x}m ${hit.position.y}m ${hit.position.z}m`; // Imposta la posizione del modello
-          console.log(`Modello spostato a: ${hit.position.x}, ${hit.position.y}, ${hit.position.z}`);
-        }
-      }
-    });
-
-    // Ascolta lo stato AR per sapere quando siamo in modalità AR
+    // Funzione per abbassare il modello 3D di 2.41828 metri
     modelViewer.addEventListener('ar-status', (event) => {
       if (event.detail.status === 'session-started') {
         console.log('Entrato in modalità AR.');
         isInAR = true;
         modelViewer.pause();
         isAnimating = false; 
+        
+        // Abbassa il modello di 2.41828 metri
+        const heightOffset = -2.41828; // Offset negativo per abbassare il modello
+        modelViewer.position.y += heightOffset; // Modifica la posizione Y
       } else if (event.detail.status === 'not-presenting') {
         console.log('Uscito dalla modalità AR.');
         isInAR = false;
