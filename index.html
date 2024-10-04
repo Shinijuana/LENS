@@ -97,9 +97,10 @@
     }
 
     #animate-button {
-      position: absolute; /* Cambiato in absolute */
+      position: fixed;
+      bottom: 20px;
       left: 50%;
-      transform: translate(-50%, -50%); /* Centra il pulsante */
+      transform: translateX(-50%);
       padding: 10px 20px;
       font-size: 16px;
       background-color: #4285f4;
@@ -107,16 +108,6 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      visibility: hidden; /* Nasconde il pulsante di default */
-      pointer-events: none; /* Disabilita gli eventi del puntatore */
-      transition: visibility 0s, opacity 0.5s linear; /* Per una transizione fluida */
-      opacity: .3; /* Nasconde il pulsante */
-    }
-
-    #animate-button.visible {
-      visibility: visible; /* Rende visibile il pulsante */
-      opacity: 1; /* Rende il pulsante completamente visibile */
-      pointer-events: auto; /* Abilita gli eventi del puntatore */
     }
 
     #animate-button:active {
@@ -251,11 +242,9 @@
         isInAR = true;
         modelViewer.pause();
         isAnimating = false; 
-        animateButton.classList.remove('visible'); // Nasconde il pulsante
       } else if (event.detail.status === 'not-presenting') {
         console.log('Uscito dalla modalità AR.');
         isInAR = false;
-        animateButton.classList.add('visible'); // Mostra il pulsante quando esci da AR
       }
     });
 
@@ -266,20 +255,6 @@
       animationState = 'pausedAt120';
       isAnimating = false;
     });
-
-    // Aggiornamento della posizione del pulsante
-    const updateButtonPosition = () => {
-      if (isInAR) {
-        const modelBoundingBox = modelViewer.getBoundingClientRect();
-        const buttonSize = animateButton.offsetWidth; // Dimensione del pulsante
-        animateButton.style.left = `${modelBoundingBox.left + modelBoundingBox.width / 2 - buttonSize / 2}px`;
-        animateButton.style.top = `${modelBoundingBox.top + modelBoundingBox.height / 2 - buttonSize / 2}px`;
-      }
-      requestAnimationFrame(updateButtonPosition);
-    };
-
-    // Avvia l'aggiornamento della posizione del pulsante
-    updateButtonPosition();
 
   </script>
 </body>
