@@ -135,7 +135,7 @@
     <button id="animate-button">Explode 3D-C2</button>
     </model-viewer>
 
- <script>
+<script>
     const modelViewer = document.getElementById('sens');
     const animateButton = document.getElementById('animate-button');
 
@@ -148,9 +148,14 @@
     let isAnimating = false;
     let isInAR = false;
 
+    // Gesture tracking variables
+    let touchStartX = 0;
+    let touchStartY = 0;
+    const tapThreshold = 10; // Soglia di movimento per considerare un tap (in pixel)
+    let isDragging = false;
+
     const handleClick = () => {
       console.log(`Click bottone rilevato, stato corrente: ${animationState}`);
-
       if (animationState === 'initial') {
         console.log('Stato: initial. Avvio animazione fino al frame 120.');
         modelViewer.currentTime = 0; 
@@ -159,9 +164,6 @@
         animationState = 'playingTo120';
 
         const checkFrame = () => {
-          console.log(`Verifica frame (playingTo120): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime1.toFixed(2)}`);
-          modelViewer.updateFraming();
-
           if (animationState === 'playingTo120' && modelViewer.currentTime >= pauseTime1) {
             modelViewer.pause();
             console.log('Animazione messa in pausa al frame 120.');
@@ -171,7 +173,6 @@
             requestAnimationFrame(checkFrame); 
           }
         };
-        
         requestAnimationFrame(checkFrame);
       } else if (animationState === 'pausedAt120') {
         console.log('Stato: pausedAt120. Riprendo animazione fino al frame 239.');
@@ -180,9 +181,6 @@
         isAnimating = true;
 
         const checkEnd = () => {
-          console.log(`Verifica fine (playingToEnd): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime2.toFixed(2)}`);
-          modelViewer.updateFraming();
-          
           if (modelViewer.currentTime >= pauseTime2) {
             modelViewer.pause();
             console.log('Animazione finita e messa in pausa al frame 239.');
@@ -192,7 +190,6 @@
             requestAnimationFrame(checkEnd); 
           }
         };
-
         requestAnimationFrame(checkEnd);
       } else if (animationState === 'pausedAt239') {
         console.log('Stato: pausedAt239. Riprendo animazione dall\'inizio.');
@@ -201,9 +198,6 @@
         isAnimating = true;
 
         const checkStart = () => {
-          console.log(`Verifica inizio (playingTo120): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime1.toFixed(2)}`);
-          modelViewer.updateFraming();
-          
           if (modelViewer.currentTime >= pauseTime1) {
             modelViewer.pause();
             console.log('Animazione messa in pausa al frame 120.');
@@ -213,19 +207,52 @@
             requestAnimationFrame(checkStart); 
           }
         };
-
         requestAnimationFrame(checkStart);
       }
     };
 
     const handleInteraction = () => {
-  if (!isAnimating) {
-    handleClick();
-  }
-};
+      if (!isAnimating) {
+        handleClick();
+      }
+    };
 
-animateButton.addEventListener('click', handleInteraction);
-modelViewer.addEventListener('click', handleInteraction);
+    animateButton.addEventListener('click', handleInteraction);
+
+    modelViewer.addEventListener('touchstart', (event) => {
+      if (event.touches.length === 1) {
+        // Inizia a tracciare un tocco singolo
+        touchStartX = event.touches[0].clientX;
+        touchStartY = event.touches[0].clientY;
+        isDragging = false;
+      } else if (event.touches.length === 2) {
+        // Abilita rotazione e zoom con due dita
+        modelViewer.cameraControls = true;
+      }
+    });
+
+    modelViewer.addEventListener('touchmove', (event) => {
+      if (event.touches.length === 1) {
+        const moveX = event.touches[0].clientX - touchStartX;
+        const moveY = event.touches[0].clientY - touchStartY;
+
+        if (Math.abs(moveX) > tapThreshold || Math.abs(moveY) > tapThreshold) {
+          // Movimento abbastanza significativo per considerarlo un drag
+          isDragging = true;
+          modelViewer.cameraControls = true; // Permette il drag con un dito
+        }
+      }
+    });
+
+    modelViewer.addEventListener('touchend', (event) => {
+      if (event.changedTouches.length === 1) {
+        if (!isDragging) {
+          // Se non c'è stato drag, consideriamolo un tap singolo
+          handleInteraction();
+        }
+      }
+    });
+
     // Ascolta lo stato AR per sapere quando siamo in modalità AR
     modelViewer.addEventListener('ar-status', (event) => {
       if (event.detail.status === 'session-started') {
@@ -239,14 +266,12 @@ modelViewer.addEventListener('click', handleInteraction);
       }
     });
 
-    // Evento di fine animazione
     modelViewer.addEventListener('finished', () => {
       modelViewer.pause(); 
       console.log('Animazione finita e messa in pausa (evento finished).');
       animationState = 'pausedAt120';
       isAnimating = false;
     });
-
- </script>
+  </script>
 </body>
 </html>
