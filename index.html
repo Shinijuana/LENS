@@ -31,7 +31,7 @@
       padding: 0px 16px 0px 40px;
       font-family: Roboto Regular, Helvetica Neue, sans-serif;
       font-size: 14px;
-      color:#4285f4;
+      color: #4285f4;
       height: 36px;
       line-height: 36px;
       border-radius: 18px;
@@ -51,13 +51,21 @@
     }
 
     @keyframes circle {
-      from { transform: translateX(-50%) rotate(0deg) translateX(50px) rotate(0deg); }
-      to   { transform: translateX(-50%) rotate(360deg) translateX(50px) rotate(-360deg); }
+      from {
+        transform: translateX(-50%) rotate(0deg) translateX(50px) rotate(0deg);
+      }
+      to {
+        transform: translateX(-50%) rotate(360deg) translateX(50px) rotate(-360deg);
+      }
     }
 
     @keyframes elongate {
-      from { transform: translateX(100px); }
-      to   { transform: translateX(-100px); }
+      from {
+        transform: translateX(100px);
+      }
+      to {
+        transform: translateX(-100px);
+      }
     }
 
     model-viewer > #ar-prompt {
@@ -117,7 +125,7 @@
     shadow-intensity="1" 
     ar 
     camera-controls 
-    touch-action="none" 
+    touch-action="pan-y" 
     alt="Un modello 3D di un oggetto">
   
     <button slot="ar-button" id="ar-button">
@@ -125,17 +133,17 @@
     </button>
 
     <div id="ar-prompt">
-      <img src="assets/hand.png">
+      <img src="assets/hand.png" alt="Hand gesture to interact with AR">
     </div>
 
-    <button id="ar-failure">
+    <button id="ar-failure" role="alert" aria-live="assertive">
       AR is not tracking!
     </button>
   
     <button id="animate-button">Explode 3D-C2</button>
-    </model-viewer>
+  </model-viewer>
 
-<script>
+  <script>
     const modelViewer = document.getElementById('sens');
     const animateButton = document.getElementById('animate-button');
 
@@ -146,15 +154,11 @@
     const pauseTime1 = pauseAtFrame1 / fps; 
     const pauseTime2 = pauseAtFrame2 / fps;
     let isAnimating = false;
-
-    // Gesture tracking variables
-    let touchStartX = 0;
-    let touchStartY = 0;
-    const tapThreshold = 10; // Soglia di movimento per considerare un tap (in pixel)
-    let isDragging = false;
+    let isInAR = false;
 
     const handleClick = () => {
       console.log(`Click bottone rilevato, stato corrente: ${animationState}`);
+
       if (animationState === 'initial') {
         console.log('Stato: initial. Avvio animazione fino al frame 120.');
         modelViewer.currentTime = 0; 
@@ -163,6 +167,9 @@
         animationState = 'playingTo120';
 
         const checkFrame = () => {
+          console.log(`Verifica frame (playingTo120): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime1.toFixed(2)}`);
+          modelViewer.updateFraming();
+
           if (animationState === 'playingTo120' && modelViewer.currentTime >= pauseTime1) {
             modelViewer.pause();
             console.log('Animazione messa in pausa al frame 120.');
@@ -172,6 +179,7 @@
             requestAnimationFrame(checkFrame); 
           }
         };
+        
         requestAnimationFrame(checkFrame);
       } else if (animationState === 'pausedAt120') {
         console.log('Stato: pausedAt120. Riprendo animazione fino al frame 239.');
@@ -180,6 +188,9 @@
         isAnimating = true;
 
         const checkEnd = () => {
+          console.log(`Verifica fine (playingToEnd): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime2.toFixed(2)}`);
+          modelViewer.updateFraming();
+          
           if (modelViewer.currentTime >= pauseTime2) {
             modelViewer.pause();
             console.log('Animazione finita e messa in pausa al frame 239.');
@@ -189,6 +200,7 @@
             requestAnimationFrame(checkEnd); 
           }
         };
+
         requestAnimationFrame(checkEnd);
       } else if (animationState === 'pausedAt239') {
         console.log('Stato: pausedAt239. Riprendo animazione dall\'inizio.');
@@ -197,6 +209,9 @@
         isAnimating = true;
 
         const checkStart = () => {
+          console.log(`Verifica inizio (playingTo120): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime1.toFixed(2)}`);
+          modelViewer.updateFraming();
+          
           if (modelViewer.currentTime >= pauseTime1) {
             modelViewer.pause();
             console.log('Animazione messa in pausa al frame 120.');
@@ -206,6 +221,7 @@
             requestAnimationFrame(checkStart); 
           }
         };
+
         requestAnimationFrame(checkStart);
       }
     };
@@ -217,57 +233,29 @@
     };
 
     animateButton.addEventListener('click', handleInteraction);
-
-    modelViewer.addEventListener('touchstart', (event) => {
-      if (event.touches.length === 1) {
-        // Inizio del tocco singolo
-        touchStartX = event.touches[0].clientX;
-        touchStartY = event.touches[0].clientY;
-        isDragging = false; // Resetta lo stato di dragging
-      } else if (event.touches.length === 2) {
-        // Se ci sono due dita, abilita il controllo della fotocamera
-        modelViewer.cameraControls = true; 
-      }
-    });
-
-    modelViewer.addEventListener('touchmove', (event) => {
-      if (event.touches.length === 1) {
-        const moveX = event.touches[0].clientX - touchStartX;
-        const moveY = event.touches[0].clientY - touchStartY;
-
-        // Se il movimento supera la soglia, considera il movimento come dragging
-        if (Math.abs(moveX) > tapThreshold || Math.abs(moveY) > tapThreshold) {
-          isDragging = true;
-        }
-      }
-      // Se ci sono due dita, non interferire con i controlli di rotazione e zoom
-    });
-
-    modelViewer.addEventListener('touchend', (event) => {
-      if (event.changedTouches.length === 1) {
-        if (!isDragging) {
-          // Se non c'è stato drag, consideralo un tap singolo
-          handleInteraction();
-        }
-      }
-      // Se ci sono due dita, lascia che model-viewer gestisca il comportamento
-    });
+    modelViewer.addEventListener('click', handleInteraction);
 
     // Ascolta lo stato AR per sapere quando siamo in modalità AR
     modelViewer.addEventListener('ar-status', (event) => {
       if (event.detail.status === 'session-started') {
         console.log('Entrato in modalità AR.');
+        isInAR = true;
         modelViewer.pause();
         isAnimating = false; 
+      } else if (event.detail.status === 'not-presenting') {
+        console.log('Uscito dalla modalità AR.');
+        isInAR = false;
       }
     });
 
+    // Evento di fine animazione
     modelViewer.addEventListener('finished', () => {
       modelViewer.pause(); 
       console.log('Animazione finita e messa in pausa (evento finished).');
       animationState = 'pausedAt120';
       isAnimating = false;
     });
+
   </script>
 </body>
 </html>
