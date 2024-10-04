@@ -146,7 +146,6 @@
     const pauseTime1 = pauseAtFrame1 / fps; 
     const pauseTime2 = pauseAtFrame2 / fps;
     let isAnimating = false;
-    let isInAR = false;
 
     // Gesture tracking variables
     let touchStartX = 0;
@@ -221,13 +220,13 @@
 
     modelViewer.addEventListener('touchstart', (event) => {
       if (event.touches.length === 1) {
-        // Inizia a tracciare un tocco singolo
+        // Inizio del tocco singolo
         touchStartX = event.touches[0].clientX;
         touchStartY = event.touches[0].clientY;
-        isDragging = false;
+        isDragging = false; // Resetta lo stato di dragging
       } else if (event.touches.length === 2) {
-        // Abilita rotazione e zoom con due dita
-        modelViewer.cameraControls = true;
+        // Se ci sono due dita, abilita il controllo della fotocamera
+        modelViewer.cameraControls = true; 
       }
     });
 
@@ -236,33 +235,30 @@
         const moveX = event.touches[0].clientX - touchStartX;
         const moveY = event.touches[0].clientY - touchStartY;
 
+        // Se il movimento supera la soglia, considera il movimento come dragging
         if (Math.abs(moveX) > tapThreshold || Math.abs(moveY) > tapThreshold) {
-          // Movimento abbastanza significativo per considerarlo un drag
           isDragging = true;
-          modelViewer.cameraControls = true; // Permette il drag con un dito
         }
       }
+      // Se ci sono due dita, non interferire con i controlli di rotazione e zoom
     });
 
     modelViewer.addEventListener('touchend', (event) => {
       if (event.changedTouches.length === 1) {
         if (!isDragging) {
-          // Se non c'è stato drag, consideriamolo un tap singolo
+          // Se non c'è stato drag, consideralo un tap singolo
           handleInteraction();
         }
       }
+      // Se ci sono due dita, lascia che model-viewer gestisca il comportamento
     });
 
     // Ascolta lo stato AR per sapere quando siamo in modalità AR
     modelViewer.addEventListener('ar-status', (event) => {
       if (event.detail.status === 'session-started') {
         console.log('Entrato in modalità AR.');
-        isInAR = true;
         modelViewer.pause();
         isAnimating = false; 
-      } else if (event.detail.status === 'not-presenting') {
-        console.log('Uscito dalla modalità AR.');
-        isInAR = false;
       }
     });
 
