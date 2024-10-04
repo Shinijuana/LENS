@@ -129,6 +129,19 @@
     #animate-button:active {
       background-color: #00d5ca;
     }
+
+  .hotspot-button {
+    background-color: #0076E7;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    cursor: pointer;
+  }
+
+  .hotspot-button:hover {
+    background-color: #00d5ca;
+  }
   </style>
 </head>
 <body>
@@ -142,7 +155,7 @@
     ar 
     camera-controls 
     touch-action="pan-y" 
-    alt="Un modello 3D di un oggetto">
+    alt="3G-C2 Sensor">
   
     <button slot="ar-button" id="ar-button">
       View in your space
@@ -155,8 +168,12 @@
     <button id="ar-failure" role="alert" aria-live="assertive">
       AR is not tracking!
     </button>
-  
-    <button id="animate-button">Explode 3D-C2</button>
+
+    <button id="animate-button" slot="hotspot-hand" class="hotspot-button" data-position="0m 1.5m 0m" data-normal="0m 1m 0m">
+        Explode 3D-C2
+    </button>
+
+    <!--   <button id="animate-button">Explode 3D-C2</button> -->
   </model-viewer>
 
   <script>
