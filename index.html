@@ -6,7 +6,6 @@
   <title>Sensitron AR</title>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
-    /* Questo mantiene i nodi figli nascosti mentre l'elemento si carica */
     :not(:defined) > * {
       display: none;
     }
@@ -118,84 +117,63 @@
   
  <script>
     const modelViewer = document.getElementById('sens');
-    let animationState = 'initial'; // Stati possibili: 'initial', 'pausedAt120', 'pausedAt239'
-    const pauseAtFrame1 = 120; // Frame da cui mettere in pausa alla prima pausa
-    const pauseAtFrame2 = 237; // Frame da cui mettere in pausa alla seconda pausa
-    const fps = 24; // Frame per secondo
-    const pauseTime1 = pauseAtFrame1 / fps; // Tempo in secondi per il frame 120
-    const pauseTime2 = pauseAtFrame2 / fps; // Tempo in secondi per il frame 239
-    let isAnimating = false; // Flag per controllare se l'animazione è in corso
-    let isInAR = false; // Flag per controllare se siamo in modalità AR
+    let animationState = 'initial'; 
+    const pauseAtFrame1 = 120;
+    const pauseAtFrame2 = 237; 
+    const fps = 24;
+    const pauseTime1 = pauseAtFrame1 / fps; 
+    const pauseTime2 = pauseAtFrame2 / fps;
+    let isAnimating = false;
+    let isInAR = false;
 
     const handleClick = () => {
       console.log(`Click rilevato, stato corrente: ${animationState}`);
 
       if (animationState === 'initial') {
-        console.log('Stato: initial. Avvio animazione fino al frame 120.');
-        modelViewer.currentTime = 0; // Iniziamo dall'inizio
+        modelViewer.currentTime = 0;
         modelViewer.play();
-        isAnimating = true; // Imposta il flag per indicare che l'animazione è in corso
+        isAnimating = true;
         animationState = 'playingTo120';
 
         const checkFrame = () => {
-          console.log(`Verifica frame (playingTo120): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime1.toFixed(2)}`);
-
-          // Aggiorna il framing mentre controlli il tempo
-          modelViewer.updateFraming();
-          
           if (animationState === 'playingTo120' && modelViewer.currentTime >= pauseTime1) {
-            modelViewer.pause(); // Pausa al frame 120
-            console.log('Animazione messa in pausa al frame 120.');
-            animationState = 'pausedAt120'; // Cambia lo stato a pausedAt120
-            isAnimating = false; // Ripristina il flag
+            modelViewer.pause();
+            animationState = 'pausedAt120';
+            isAnimating = false;
           } else if (animationState === 'playingTo120') {
-            requestAnimationFrame(checkFrame); // Continua a controllare fino a che non si raggiunge il frame 120
+            requestAnimationFrame(checkFrame);
           }
         };
         
         requestAnimationFrame(checkFrame);
       } else if (animationState === 'pausedAt120') {
-        console.log('Stato: pausedAt120. Riprendo animazione fino al frame 239.');
-        modelViewer.currentTime = pauseTime1; // Riprendi dal frame 120
-        modelViewer.play(); // Avvia l'animazione
-        isAnimating = true; // Imposta il flag
+        modelViewer.currentTime = pauseTime1;
+        modelViewer.play();
+        isAnimating = true;
 
         const checkEnd = () => {
-          console.log(`Verifica fine (playingToEnd): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime2.toFixed(2)}`);
-
-          modelViewer.updateFraming();
-          
-          // Controlla se siamo al frame 239 per la seconda pausa
           if (modelViewer.currentTime >= pauseTime2) {
-            modelViewer.pause(); // Metti in pausa al frame 239
-            console.log('Animazione finita e messa in pausa al frame 239.');
-            animationState = 'pausedAt239'; // Imposta lo stato su pausedAt239
-            isAnimating = false; // Ripristina il flag
+            modelViewer.pause();
+            animationState = 'pausedAt239';
+            isAnimating = false;
           } else {
-            requestAnimationFrame(checkEnd); // Continua a controllare fino a che non termina l'animazione
+            requestAnimationFrame(checkEnd);
           }
         };
 
         requestAnimationFrame(checkEnd);
       } else if (animationState === 'pausedAt239') {
-        console.log('Stato: pausedAt239. Riprendo animazione dall\'inizio.');
-        modelViewer.currentTime = 0; // Iniziare da zero per la nuova apertura
-        modelViewer.play(); // Avvia l'animazione
-        isAnimating = true; // Imposta il flag
+        modelViewer.currentTime = 0;
+        modelViewer.play();
+        isAnimating = true;
 
         const checkStart = () => {
-          console.log(`Verifica inizio (playingTo120): currentTime = ${modelViewer.currentTime.toFixed(2)}, pauseTime = ${pauseTime1.toFixed(2)}`);
-
-          modelViewer.updateFraming();
-          
-          // Controlla se siamo tornati al frame 120
           if (modelViewer.currentTime >= pauseTime1) {
-            modelViewer.pause(); // Metti in pausa al frame 120
-            console.log('Animazione finita e messa in pausa al frame 120.');
-            animationState = 'pausedAt120'; // Ritorna allo stato pausedAt120
-            isAnimating = false; // Ripristina il flag
+            modelViewer.pause();
+            animationState = 'pausedAt120';
+            isAnimating = false;
           } else {
-            requestAnimationFrame(checkStart); // Continua a controllare fino a che non torna al frame 120
+            requestAnimationFrame(checkStart);
           }
         };
 
@@ -203,41 +181,47 @@
       }
     };
 
-    // Associa l'evento di click solo se non stiamo animando
-    modelViewer.addEventListener('click', () => {
-      if (!isAnimating) {
-        handleClick();
-      }
-    });
+    // Aggiungi sia l'evento "click" che "touchstart" per entrambi i contesti
+    const addInteractionListeners = () => {
+      modelViewer.addEventListener('click', () => {
+        if (!isAnimating) {
+          handleClick();
+        }
+      });
 
-    // Ascolta i cambiamenti di stato di AR per sapere quando siamo in modalità AR
+      modelViewer.addEventListener('touchstart', () => {
+        if (isInAR && !isAnimating) {
+          handleClick();
+        }
+      });
+    };
+
+    addInteractionListeners();
+
+    // Ascolta lo stato AR
     modelViewer.addEventListener('ar-status', (event) => {
       if (event.detail.status === 'session-started') {
-        console.log('Entrato in modalità AR.');
         isInAR = true;
-        modelViewer.pause(); // Ferma l'animazione in caso sia partita
-        isAnimating = false; // Ripristina il flag per evitare loop
+        modelViewer.pause();
+        isAnimating = false;
       } else if (event.detail.status === 'not-presenting') {
-        console.log('Uscito dalla modalità AR.');
         isInAR = false;
       }
     });
 
-    // Aggiungi un evento di tocco per AR (per i dispositivi mobili)
-    modelViewer.addEventListener('touchstart', () => {
-      if (isInAR && !isAnimating) {
-        handleClick();
-      }
+    // Gestisci l'uscita dalla modalità AR
+    modelViewer.addEventListener('scene-viewer-dismissed', () => {
+      isInAR = false;
+      console.log('Uscito dalla modalità AR.');
     });
 
     // Evento di fine animazione
     modelViewer.addEventListener('finished', () => {
-      // Metti in pausa quando l'animazione è finita
-      modelViewer.pause(); 
-      console.log('Animazione finita e messa in pausa (evento finished).');
-      animationState = 'pausedAt120'; // Modificato per riportare a pausedAt120
-      isAnimating = false; // Ripristina il flag
+      modelViewer.pause();
+      animationState = 'pausedAt120';
+      isAnimating = false;
     });
-  </script>
+
+ </script>
 </body>
 </html>
