@@ -102,20 +102,20 @@
     camera-controls 
     touch-action="pan-y" 
     alt="Un modello 3D di un oggetto">
-  </model-viewer>
-
-   <button slot="ar-button" id="ar-button">
+  
+    <button slot="ar-button" id="ar-button">
     View in your space
-  </button>
+    </button>
 
-  <div id="ar-prompt">
-    <img src="assets/hand.png">
-  </div>
+    <div id="ar-prompt">
+      <img src="assets/hand.png">
+    </div>
 
-  <button id="ar-failure">
-    AR is not tracking!
-  </button>
-
+    <button id="ar-failure">
+      AR is not tracking!
+    </button>
+  </model-viewer>
+  
   <script>
     const modelViewer = document.getElementById('sens');
     let animationState = 'initial'; // Stati possibili: 'initial', 'pausedAt120', 'pausedAt239'
