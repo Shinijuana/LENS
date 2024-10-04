@@ -226,15 +226,13 @@
       }
     };
 
-  const elements = [animateButton, modelViewer];
-
-elements.forEach((element) => {
-  element.addEventListener('click', () => {
+  
+  animateButton.addEventListener('click', () => {
     if (!isAnimating) {
       handleClick();
     }
   });
-});
+
    
     // Ascolta lo stato AR per sapere quando siamo in modalità AR
     modelViewer.addEventListener('ar-status', (event) => {
